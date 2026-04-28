@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/favicon.webp",
+      "dest": "/favicon.webp"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

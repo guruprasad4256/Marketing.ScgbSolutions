@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------
+   SCGB Theme Tokens (Logo-based colors kept)
+------------------------------------------------------- */
+
+:root {
+  --radius: 14px;
+
+  --background: 210 40% 98%; /* #F8FAFC */
+  --foreground: 222 47% 11%; /* #0F172A */
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+
+  --primary: 216 68% 31%;    /* #194485 */
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 51 97% 50%;      /* #FBD505 */
+  --accent-foreground: 222 47% 11%;
+
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 216 68% 31%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+.dark {
+  --background: 220 35% 8%;  /* #0B1220 */
+  --foreground: 210 40% 90%; /* #E2E8F0 */
+
+  --card: 220 45% 12%;
+  --card-foreground: 210 40% 90%;
+
+  --popover: 220 45% 12%;
+  --popover-foreground: 210 40% 90%;
+
+  --primary: 216 70% 52%;
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 51 97% 50%;
+  --accent-foreground: 220 35% 8%;
+
+  --muted: 220 25% 16%;
+  --muted-foreground: 215 20% 70%;
+
+  --border: 220 25% 18%;
+  --input: 220 25% 18%;
+  --ring: 216 70% 52%;
+
+  --destructive: 0 70% 48%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+/* -------------------------------------------------------
+   Base styles only (no custom utility classes)
+------------------------------------------------------- */
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    @apply antialiased;
+  }
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;   /* IE & Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari */
+}
+
+/* Universal scrollbar styles for WebKit browsers */
+::-webkit-scrollbar {
+  width: 8px;           /* width of vertical scrollbar */
+  height: 8px;          /* height of horizontal scrollbar */
+  background: transparent; /* remove background */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #FCD305; /* thumb color */
+  border-radius: 4px;        /* rounded edges */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;   /* track transparent */
+}
+
+::-webkit-scrollbar-button {
+  display: none;             /* remove arrows */
+}
