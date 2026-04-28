@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import logo from "@/assets/scgb.webp";
+import logo from "@/assets/scgb.webp"; 
 import { Sun, Moon, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/utils/Api";
@@ -8,7 +8,7 @@ import useUser from "@/hooks/useUser";
 
 export default function Login() {
     const navigate = useNavigate();
-    const { user, fetchUser } = useUser();
+    const { fetchUser } = useUser();
     const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -22,18 +22,13 @@ export default function Login() {
         localStorage.setItem("theme", theme);
     }, [theme]);
 
+    // Check if already logged in -> Redirect to Blog Editor
     useEffect(() => {
         const checkUser = async () => {
             try {
                 const currentUser = await fetchUser();
-
                 if (currentUser) {
-                    const isPartner = currentUser?.role?.isPartner;
-
-                    navigate(
-                        isPartner ? "/partner-dashboard" : "/dashboard",
-                        { replace: true }
-                    );
+                    navigate("/blog-editor", { replace: true });
                 }
             } catch (err) {
                 console.error("User check failed", err);
@@ -43,14 +38,14 @@ export default function Login() {
         checkUser();
     }, [fetchUser, navigate]);
 
+    // Marketing Studio Aesthetic Background
     const heroBg = useMemo(
         () => ({
-            background:
-                "radial-gradient(900px circle at 20% 10%, rgba(25, 68, 133, 0.22), transparent 60%)," +
-                "radial-gradient(700px circle at 80% 30%, rgba(251, 213, 5, 0.18), transparent 55%)," +
-                "linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)))",
+            background: theme === "dark" 
+                ? "radial-gradient(900px circle at 20% 10%, rgba(26, 68, 132, 0.15), transparent 60%), radial-gradient(700px circle at 80% 30%, rgba(255, 237, 0, 0.1), transparent 55%), #0f172a"
+                : "radial-gradient(900px circle at 20% 10%, rgba(26, 68, 132, 0.08), transparent 60%), radial-gradient(700px circle at 80% 30%, rgba(255, 237, 0, 0.15), transparent 55%), #f8fafc",
         }),
-        []
+        [theme]
     );
 
     const onSubmit = async (e) => {
@@ -58,7 +53,7 @@ export default function Login() {
         setError("");
         setLoading(true);
 
-        const toastId = toast.loading("Signing in...");
+        const toastId = toast.loading("Authenticating...");
 
         try {
             const res = await api.post(
@@ -68,7 +63,6 @@ export default function Login() {
             );
 
             if (res?.status === 200) {
-
                 const user = await fetchUser();
 
                 if (!user) {
@@ -76,14 +70,10 @@ export default function Login() {
                     return;
                 }
 
-                toast.success("Login successful", { id: toastId });
+                toast.success("Welcome to the Studio!", { id: toastId });
 
-                const isPartner = user?.role?.isPartner;
-
-                navigate(
-                    isPartner ? "/partner-dashboard" : "/dashboard",
-                    { replace: true }
-                );
+                // Redirect straight to the blog editor
+                navigate("/blog-editor", { replace: true });
             }
         } catch (err) {
             console.error("Login error:", err);
@@ -96,7 +86,7 @@ export default function Login() {
             if (status === 400) {
                 userMessage = serverMessage || "Invalid email or password.";
             } else if (status === 403) {
-                userMessage = serverMessage || "You are not authorized to access this system.";
+                userMessage = serverMessage || "You are not authorized to access the marketing studio.";
             } else if (status === 401) {
                 userMessage = "Your session is invalid. Please login again.";
             } else if (!err.response) {
@@ -112,91 +102,59 @@ export default function Login() {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center px-4 py-10 bg-background text-foreground"
+            className="min-h-screen flex items-center justify-center px-4 py-10 text-foreground transition-colors duration-500"
             style={heroBg}
         >
-            <div className="w-full max-w-5xl grid gap-6 lg:grid-cols-2">
-                {/* Left panel (desktop) */}
-                <div className="hidden lg:block rounded-2xl border border-border bg-card shadow-lg p-8 relative overflow-hidden">
-                    <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full opacity-20 bg-accent" />
-                    <div className="absolute -bottom-28 -left-28 h-72 w-72 rounded-full opacity-20 bg-primary" />
-
-                    <div className="relative z-10 flex flex-col gap-6 h-full">
-                        <img src={logo} alt="SCGB" className="h-18 w-36" />
-
-                        <div>
-                            <h1 className="text-3xl font-bold leading-tight">
-                                Welcome to <span className="text-primary">SCGB CRM</span>
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Manage leads, track follow-ups, and monitor sales progress in one place with a clean, SCGB-branded CRM experience.
-                            </p>
-                        </div>
-
-                        <div className="mt-auto rounded-2xl border border-border bg-background/40 p-4">
-                            <p className="text-sm font-semibold">Secure Admin/Sales Access</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Only Admin and Sales users are allowed to login.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right login card */}
-                <div className="rounded-2xl border border-border bg-card shadow-lg p-6 sm:p-8">
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <img src={logo} alt="SCGB" className="h-10 w-auto lg:hidden" />
-                            <div>
-                                <h2 className="text-xl font-bold">Login</h2>
-                                <p className="text-sm text-muted-foreground">Enter your credentials to continue</p>
-                            </div>
-                        </div>
-
+            <div className="w-full max-w-md">
+                {/* Centered login card */}
+                <div className="rounded-[2.5rem] border border-border bg-card shadow-xl p-8 sm:p-10 relative overflow-hidden">
+                    
+                    <div className="relative flex flex-col items-center text-center gap-4 mt-2">
                         <button
                             type="button"
                             onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-                            className="h-10 w-10 flex items-center justify-center rounded-xl
-              border border-border bg-background/40 hover:bg-background transition"
+                            className="absolute -top-4 -right-2 shrink-0 h-10 w-10 flex items-center justify-center rounded-xl border border-border bg-background/40 hover:bg-background transition shadow-sm"
                             aria-label="Toggle theme"
                         >
                             {theme === "dark" ? (
-                                <Sun className="h-5 w-5 text-accent" />
+                                <Sun className="h-5 w-5 text-[#FFED00]" />
                             ) : (
-                                <Moon className="h-5 w-5 text-primary" />
+                                <Moon className="h-5 w-5 text-slate-600" />
                             )}
                         </button>
+
+                        <img src={logo} alt="SCGB" className="h-12 w-auto object-contain" />
+                        <div>
+                            <h2 className="text-2xl font-black tracking-tight">Welcome Back</h2>
+                            <p className="text-sm font-medium text-muted-foreground mt-1">Sign in to access the studio</p>
+                        </div>
                     </div>
 
-                    <form onSubmit={onSubmit} className="mt-6 space-y-4">
+                    <form onSubmit={onSubmit} className="mt-8 space-y-5">
                         {error && (
-                            <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm">
+                            <div className="rounded-xl border border-red-200 bg-red-50 text-[#1A4484] px-4 py-3 text-sm font-medium">
                                 {error}
                             </div>
                         )}
 
                         <div>
-                            <label className="text-sm font-medium">Email</label>
+                            <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Email Address</label>
                             <input
-                                className="mt-2 h-11 w-full rounded-xl border border-input bg-background/40 px-4 text-sm outline-none
-                placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+                                className="h-12 w-full rounded-xl border border-input bg-background/60 px-4 text-sm outline-none font-medium placeholder:text-muted-foreground focus:ring-2 focus:ring-[#1A4484] transition-shadow"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@company.com"
+                                placeholder="writer@scgbsolutions.com"
                                 required
                                 disabled={loading}
                             />
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium">Password</label>
-
-                            {/* ✅ password input with show/hide */}
-                            <div className="relative mt-2">
+                            <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">Password</label>
+                            <div className="relative">
                                 <input
-                                    className="h-11 w-full rounded-xl border border-input bg-background/40 px-4 pr-12 text-sm outline-none
-                  placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+                                    className="h-12 w-full rounded-xl border border-input bg-background/60 px-4 pr-12 text-sm outline-none font-medium placeholder:text-muted-foreground focus:ring-2 focus:ring-[#1A4484] transition-shadow"
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -208,32 +166,33 @@ export default function Login() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword((v) => !v)}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg transition"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg transition hover:bg-slate-100 dark:hover:bg-slate-800"
                                     aria-label={showPassword ? "Hide password" : "Show password"}
                                     disabled={loading}
                                 >
                                     {showPassword ? (
-                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        <EyeOff className="h-4 w-4 text-slate-400" />
                                     ) : (
-                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                        <Eye className="h-4 w-4 text-slate-400" />
                                     )}
                                 </button>
                             </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="h-11 w-full rounded-xl bg-primary text-primary-foreground font-medium
-              hover:opacity-95 active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                            {loading ? "Signing in..." : "Sign in"}
-                        </button>
+                        <div className="flex justify-center pt-2">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="h-11 w-1/2 rounded-full bg-[#1A4484] text-white font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 transition-all shadow-[0_4px_14px_0_rgba(26,68,132,0.39)] hover:shadow-[0_6px_20px_rgba(26,68,132,0.23)] disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {loading ? "Authenticating..." : "Enter Studio"}
+                            </button>
+                        </div>
 
-                        <div className="pt-2 text-center text-sm text-muted-foreground">
-                            Don’t have access?{" "}
-                            <button type="button" className="font-medium text-primary hover:underline" disabled={loading}>
-                                Contact admin
+                        <div className="pt-2 text-center text-sm text-muted-foreground font-medium">
+                            Need publishing access?{" "}
+                            <button type="button" className="font-bold text-slate-900 dark:text-slate-100 hover:text-[#1A4484] dark:hover:text-[#1A4484] transition-colors" disabled={loading}>
+                                Contact Admin
                             </button>
                         </div>
                     </form>
