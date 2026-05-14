@@ -54,6 +54,45 @@ const BlogEditor = () => {
   const [selectedSites, setSelectedSites] = useState([]); 
   const [selectedTags, setSelectedTags] = useState([]); 
 
+  // --- SEO States ---
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+
+  // --- Author States (Now pulling from API instead of Local Storage) ---
+  const [authorsList, setAuthorsList] = useState([]);
+  const [isAddingNewAuthor, setIsAddingNewAuthor] = useState(true);
+  const [editingAuthorOriginalName, setEditingAuthorOriginalName] = useState(null);
+
+  const [authorName, setAuthorName] = useState('');
+  const [authorImage, setAuthorImage] = useState('');
+  const [authorLink, setAuthorLink] = useState('');
+  const [authorDescription, setAuthorDescription] = useState('');
+  const [isUploadingAuthorImage, setIsUploadingAuthorImage] = useState(false);
+
+  // --- Fetch Authors from Database on Load ---
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const authorsEndpoint = `${SERVER_URL}/api/authors`;
+        const res = await axios.get(authorsEndpoint);
+        setAuthorsList(res.data);
+        
+        // If authors exist in DB, select the first one by default
+        if (res.data.length > 0) {
+          const firstAuthor = res.data[0];
+          setAuthorName(firstAuthor.name);
+          setAuthorImage(firstAuthor.image || '');
+          setAuthorLink(firstAuthor.link || '');
+          setAuthorDescription(firstAuthor.description || '');
+          setIsAddingNewAuthor(false);
+        }
+      } catch (err) {
+        console.error("Failed to fetch authors from database", err);
+      }
+    };
+    fetchAuthors();
+  }, []);
+
   // --- Editor FAQ Accordion State ---
   const [openEditorFaqIndex, setOpenEditorFaqIndex] = useState(0);
 
@@ -81,6 +120,113 @@ const BlogEditor = () => {
   // --- Selection Handlers ---
   const toggleItem = (_list, setList, item) => {
     setList(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+  };
+
+  // --- Author Logic Handlers ---
+  const handleSelectAuthor = (author) => {
+    setAuthorName(author.name);
+    setAuthorImage(author.image || '');
+    setAuthorLink(author.link || '');
+    setAuthorDescription(author.description || '');
+    setIsAddingNewAuthor(false);
+    setEditingAuthorOriginalName(null);
+  };
+
+  const handleEditAuthor = (e, author) => {
+    e.stopPropagation();
+    setEditingAuthorOriginalName(author.name);
+    setAuthorName(author.name);
+    setAuthorImage(author.image || '');
+    setAuthorLink(author.link || '');
+    setAuthorDescription(author.description || '');
+    setIsAddingNewAuthor(true);
+  };
+
+  const handleDeleteAuthor = async (e, authorNameToDelete) => {
+    e.stopPropagation();
+    if (!window.confirm(`Are you sure you want to permanently delete ${authorNameToDelete} from the database?`)) return;
+    
+    try {
+      // Correctly call the DELETE route by name
+      await axios.delete(`${SERVER_URL}/api/authors/${encodeURIComponent(authorNameToDelete)}`);
+      
+      const updatedAuthors = authorsList.filter(a => a.name !== authorNameToDelete);
+      setAuthorsList(updatedAuthors);
+      
+      if (authorName === authorNameToDelete) {
+        if (updatedAuthors.length > 0) {
+          handleSelectAuthor(updatedAuthors[0]);
+        } else {
+          setAuthorName('');
+          setAuthorImage('');
+          setAuthorLink('');
+          setAuthorDescription('');
+          setIsAddingNewAuthor(true);
+          setEditingAuthorOriginalName(null);
+        }
+      }
+      alert("Author deleted successfully.");
+    } catch (err) {
+      console.error("Error deleting author:", err);
+      alert("Failed to delete author from database.");
+    }
+  };
+
+  const handleSaveNewAuthor = async () => {
+    if (!authorName.trim()) return alert("Author name is required");
+    
+    const newAuthorPayload = { 
+      name: authorName.trim(), 
+      image: authorImage || '', 
+      link: authorLink || '',
+      description: authorDescription || '' 
+    };
+
+    try {
+      // POST to the dedicated author collection API (handles upsert)
+      const res = await axios.post(`${SERVER_URL}/api/authors`, newAuthorPayload);
+      const savedAuthor = res.data;
+
+      // Update local list state
+      setAuthorsList(prev => {
+        const index = prev.findIndex(a => a.name.toLowerCase() === savedAuthor.name.toLowerCase());
+        if (index !== -1) {
+          // Replace existing entry
+          const newList = [...prev];
+          newList[index] = savedAuthor;
+          return newList;
+        }
+        // Append new entry and sort
+        return [...prev, savedAuthor].sort((a, b) => a.name.localeCompare(b.name));
+      });
+
+      setIsAddingNewAuthor(false);
+      setEditingAuthorOriginalName(null);
+      alert("Author details saved to database!");
+    } catch (err) {
+      console.error("Error saving author:", err);
+      alert("Failed to save author to database.");
+    }
+  };
+
+  const uploadAuthorImage = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingAuthorImage(true);
+      const formData = new FormData();
+      formData.append('file', file); 
+
+      const uploadEndpoint = SERVER_URL.endsWith('/api') ? '/upload' : '/api/upload'; 
+      const res = await axios.post(`${SERVER_URL}${uploadEndpoint}`, formData);
+
+      setAuthorImage(res.data.url);
+    } catch (err) { 
+      alert('Author image upload failed.'); 
+    } finally { 
+      setIsUploadingAuthorImage(false); 
+    }
   };
 
   // --- FAQ Handlers ---
@@ -227,28 +373,74 @@ const BlogEditor = () => {
 
   const handlePublish = async (e) => {
     e.preventDefault();
-    if (featuredImageFile && !featuredImageUrl) {
-      return alert('Please click "Confirm Upload" on your cover image before publishing.');
-    }
-    if (selectedSites.length === 0) {
-        return alert('Please select at least one website to publish to.');
-    }
 
-    const publishEndpoint = SERVER_URL.endsWith('/api') ? '/blogs/' : '/api/blogs/';
+    if (!title.trim()) return alert("Please enter a title.");
+    if (!content || content === '<p><br></p>') return alert("Please write some content.");
+    if (!featuredImageUrl) {
+        if (featuredImageFile) return alert('Please click "Confirm Upload" on your cover image first.');
+        return alert('Featured image is required!');
+    }
+    if (selectedSites.length === 0) return alert('Please select at least one website.');
+    if (!authorName.trim()) return alert('Author name is required!');
+
+    const publishEndpoint = SERVER_URL.endsWith('/api') ? '/blogs' : '/api/blogs';
+    
+    // Explicitly construct the payload to ensure Author and SEO data are sent correctly
     const payload = { 
-      title, 
-      content, 
+      title: title.trim(), 
+      content: content, 
       featuredImage: featuredImageUrl, 
-      faqs, 
+      faqs: faqs, 
       targetWebsites: selectedSites,
       tags: selectedTags, 
-      styling: { fontSize, lineHeight, letterSpacing, fontFamily } 
+      categories: [], 
+      styling: { fontSize, lineHeight, letterSpacing, fontFamily },
+      author: {
+        name: authorName.trim(),
+        image: authorImage || '',
+        link: authorLink || '',
+        description: authorDescription || ''
+      },
+      metaTitle: metaTitle.trim() || '',
+      metaDescription: metaDescription.trim() || ''
     };
 
     try {
-      await axios.post(`${SERVER_URL}${publishEndpoint}`, payload);
-      navigate('/blogs');
-    } catch (err) { alert('Error publishing.'); }
+      await axios.post(`${SERVER_URL}/api/authors`, {
+        name: authorName.trim(),
+        image: authorImage || '',
+        link: authorLink || '',
+        description: authorDescription || ''
+      });
+
+      const blogRes = await axios.post(`${SERVER_URL}${publishEndpoint}`, payload);
+      const postedBlog = blogRes.data?.blog || blogRes.data;
+      const postedSlug = postedBlog?.slug;
+
+      alert('Blog Published Successfully!');
+
+      const SITE_URLS = {
+        "Tasked": "https://www.tasked.in",
+        "Manhours On Hire": "https://manhoursonhire.com",
+        "Curated for founders": "https://curatedforfounders.in",
+        "Founders Counsel": "https://founderscounsel.co",
+        "Kyamme": "https://kyamme.com"
+      };
+
+      const primarySite = selectedSites[0];
+      const targetBaseUrl = SITE_URLS[primarySite];
+
+      if (postedSlug && targetBaseUrl) {
+        window.location.href = `${targetBaseUrl}/blogs/${postedSlug}`;
+      } else if (postedSlug) {
+        navigate(`/blogs/${postedSlug}`);
+      } else {
+        navigate('/blogs');
+      }
+    } catch (err) { 
+      console.error("Publish Error:", err.response?.data);
+      alert('Error publishing: ' + (err.response?.data?.error || err.message)); 
+    }
   };
 
   return (
@@ -266,9 +458,6 @@ const BlogEditor = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap');
         
-        /* ----------------------------------- */
-        /* PREMIUM EDITOR STYLING (EDIT MODE)  */
-        /* ----------------------------------- */
         .studio-editor .ql-container.ql-snow { border: none !important; font-family: ${fontFamily} !important; background: transparent; }
         
         .studio-editor .ql-toolbar.ql-snow { 
@@ -284,18 +473,12 @@ const BlogEditor = () => {
         }
 
         .studio-editor .ql-editor { padding: 40px !important; min-height: 500px; line-height: ${lineHeight}; letter-spacing: ${letterSpacing}; color: #1e293b; }
-        .studio-editor .ql-editor ul { list-style-type: disc !important; padding-left: 1.5rem !important; }
-        .studio-editor .ql-editor ol { list-style-type: decimal !important; padding-left: 1.5rem !important; }
-        .studio-editor .ql-editor li { display: list-item !important; margin-bottom: 0.5em !important; }
         .studio-editor .ql-editor h1 { font-size: 2.5rem !important; font-weight: 900; letter-spacing: -0.04em; color: black; margin-bottom: 0.5em; }
         .studio-editor .ql-editor h2 { font-size: 2rem !important; font-weight: 800; margin-top: 1.5em; color: black; margin-bottom: 0.5em; }
         .studio-editor .ql-editor p { font-size: ${fontSize} !important; margin-bottom: 1.2em; }
         .studio-editor .ql-editor table { border-collapse: collapse; width: 100%; margin: 24px 0; border: none !important; table-layout: auto !important; }
         .studio-editor .ql-editor td, .studio-editor .ql-editor th { border: 1px solid #e2e8f0 !important; padding: 12px; background: transparent !important; min-width: 50px; position: relative; }
 
-        /* ----------------------------------- */
-        /* EXACT BLOG SINGLE STYLING (PREVIEW) */
-        /* ----------------------------------- */
         .preview-content .ql-editor { 
           padding: 0 !important; 
           font-family: ${fontFamily} !important; 
@@ -308,18 +491,11 @@ const BlogEditor = () => {
           overflow-wrap: break-word !important;
           hyphens: none !important;
         }
-        .preview-content .ql-editor ul, .preview-content .ql-editor ol { padding-left: 2rem !important; margin-bottom: 1.2em !important; }
-        .preview-content .ql-editor ul li { list-style-type: disc !important; display: list-item !important; list-style-position: outside !important; padding-left: 0 !important; margin-bottom: 0.5em !important; }
-        .preview-content .ql-editor ol li { list-style-type: decimal !important; display: list-item !important; list-style-position: outside !important; padding-left: 0 !important; margin-bottom: 0.5em !important; }
-        .preview-content .ql-editor li::before { display: none !important; }
         .preview-content .ql-editor h1 { font-size: 2.5rem !important; font-weight: 900; margin-bottom: 0.5em; margin-top: 1.5em; color: black; }
-        .preview-content .ql-editor h2 { font-size: 2rem !important; font-weight: 800; margin-top: 1.5em; margin-bottom: 0.5em; color: black; }
-        .preview-content .ql-editor h3 { font-size: 1.5rem !important; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.5em; color: black; }
         .preview-content .ql-editor p { font-size: ${fontSize} !important; margin-bottom: 1.2em; }
-        .preview-content .ql-editor img { border-radius: 12px; margin: 1.5rem 0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); max-width: 100%; display: block; }
-        .preview-content .ql-editor blockquote { border-left: 4px solid #1A4484; padding-left: 1.5rem; font-style: italic; margin: 1.5rem 0; }
-        .preview-content .ql-editor table { border-collapse: collapse; width: 100%; margin: 24px 0; border: none !important; }
-        .preview-content .ql-editor td, .preview-content .ql-editor th { border: 1px solid #e2e8f0 !important; padding: 16px; background: transparent !important; min-width: 100px; }
+        
+        .preview-content .ql-editor table { border-collapse: collapse; width: 100%; margin: 24px 0; border: none !important; table-layout: auto !important; }
+        .preview-content .ql-editor td, .preview-content .ql-editor th { border: 1px solid #e2e8f0 !important; padding: 12px; background: transparent !important; min-width: 50px; position: relative; color: #1e293b !important; }
       `}</style>
 
       {/* Global Header */}
@@ -376,7 +552,6 @@ const BlogEditor = () => {
                             <button onClick={() => setShowTableModal(false)} className="text-slate-400 hover:text-[#1A4484] transition-colors">✕</button>
                         </div>
                         
-                        {/* Insert New Table Section */}
                         <div className="flex gap-4 mb-4">
                             <div className="flex-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Rows</label>
@@ -405,7 +580,6 @@ const BlogEditor = () => {
                             Insert New Table
                         </button>
 
-                        {/* Modify Existing Table Section */}
                         <div className="pt-4 border-t border-slate-100">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block text-center">Edit Current Table</label>
                             <div className="grid grid-cols-3 gap-2">
@@ -556,58 +730,8 @@ const BlogEditor = () => {
                 </div>
               </motion.div>
             </>
-          ) : previewMode === 'mobile' ? (
-              <div className="w-[390px] h-[844px] max-h-[80vh] shrink-0 mx-auto bg-white border-[14px] border-slate-900 rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col mt-4">
-                {/* Mobile Notch Mockup */}
-                <div className="absolute top-0 inset-x-0 h-7 bg-slate-900 rounded-b-3xl w-40 mx-auto z-20"></div>
-                
-                {/* Scrollable Mobile Container */}
-                <div className="overflow-y-auto w-full h-full px-6 pt-14 pb-20 scrollbar-hide">
-                  {featuredImagePreview && (
-                    <div className="mb-6 rounded-xl overflow-hidden shadow-sm">
-                      <img src={featuredImagePreview} alt="Cover" className="w-full h-auto object-cover" />
-                    </div>
-                  )}
-
-                  <h1 className="font-black mb-8 text-3xl leading-[1.15] text-slate-900 tracking-tight" style={{ fontFamily }}>
-                    {title || 'Untitled Post'}
-                  </h1>
-
-                  <div className="preview-content w-full max-w-none prose-sm">
-                    <div className="ql-editor" dangerouslySetInnerHTML={{ __html: processContent(content) }} />
-                  </div>
-
-                  {faqs.length > 0 && (
-                    <div className="pt-10 mt-6 border-t border-slate-100">
-                      <h2 className="text-2xl font-semibold text-gray-900 mb-8 leading-tight tracking-tight">
-                        Frequently Asked Questions
-                      </h2>
-                      <div className="flex flex-col gap-4">
-                        {faqs.map((faq, index) => (
-                          <div key={index} className="group w-full bg-white/60 border border-gray-200/60 shadow-sm rounded-2xl overflow-hidden">
-                             <div className="w-full flex items-center justify-between p-5 text-left">
-                               <span className="text-sm font-semibold text-gray-900">{faq.question}</span>
-                               <div className="shrink-0 ml-3 w-8 h-8 rounded-lg flex items-center justify-center bg-[#1A4484]/10 text-[#1A4484] text-xs">
-                                 ↓
-                               </div>
-                             </div>
-                             <div className="px-5 pb-5">
-                               <div className="pt-4 border-t border-gray-100 text-gray-600 text-sm leading-relaxed">
-                                 {faq.answer}
-                               </div>
-                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
           ) : (
-              /* DESKTOP PREVIEW WRAPPER - EXACTLY MATCHES LIVE max-w-7xl LAYOUT */
               <div className="w-full max-w-7xl mx-auto px-6 py-16 bg-white/80 rounded-[3rem] shadow-xl flex flex-col xl:flex-row gap-12 items-start mt-4">
-                
-                {/* LEFT COLUMN: Main Content */}
                 <div className="flex-1 min-w-0 w-full py-8 pr-8 pl-0 sm:py-12 sm:pr-12 sm:pl-0 md:py-20 md:pr-20 md:pl-0">
                   {featuredImagePreview && (
                     <div className="mb-10 rounded-2xl overflow-hidden shadow-sm">
@@ -630,7 +754,6 @@ const BlogEditor = () => {
                           Frequently Asked Questions
                         </h2>
                       </div>
-
                       <div className="flex flex-col gap-4">
                         {faqs.map((faq, index) => (
                           <div key={index} className="group w-full bg-white/60 backdrop-blur-md border border-gray-200/60 shadow-sm rounded-[1.8rem] overflow-hidden transition-all duration-500">
@@ -654,17 +777,16 @@ const BlogEditor = () => {
                   )}
                 </div>
 
-                {/* RIGHT COLUMN: Fake Sidebar Placeholder to Force Layout Alignment */}
                 <div className="hidden xl:flex w-[400px] shrink-0 sticky top-24 h-[500px] border-2 border-dashed border-slate-300 rounded-[2.5rem] bg-slate-50/50 flex-col items-center justify-center p-8 text-center text-slate-500">
                     <span className="text-5xl mb-4">📐</span>
                     <h4 className="font-black text-xl mb-2 text-slate-700">Sidebar Placeholder</h4>
-                    <p className="text-sm">This 400px space reserves the exact width used by the actual sidebar, ensuring your content preview is visually 1:1 with the live desktop view.</p>
+                    <p className="text-sm">Content preview matches the live desktop view.</p>
                 </div>
               </div>
           )}
         </div>
 
-        {/* --- RIGHT COLUMN: SETTINGS SIDEBAR (Hidden in Preview Mode) --- */}
+        {/* --- RIGHT COLUMN: SETTINGS SIDEBAR --- */}
         {previewMode === 'none' && (
           <aside className="xl:col-span-4 space-y-6">
             <motion.div
@@ -673,8 +795,6 @@ const BlogEditor = () => {
                 transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
                 className="space-y-6 w-full"
             >
-              
-              {/* --- SERVICE TAGS ACCORDION --- */}
               <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-slate-200/60 shadow-sm overflow-hidden relative">
                 <button 
                   type="button"
@@ -705,7 +825,6 @@ const BlogEditor = () => {
                 </AnimatePresence>
               </div>
 
-              {/* --- TARGET WEBSITES ACCORDION --- */}
               <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-slate-200/60 shadow-sm overflow-hidden relative">
                 <button 
                   type="button"
@@ -736,14 +855,13 @@ const BlogEditor = () => {
                 </AnimatePresence>
               </div>
 
-              {/* COVER IMAGE ACCORDION */}
               <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-slate-200/60 shadow-sm overflow-hidden group relative">
                 <button 
                   type="button"
                   onClick={() => setOpenSidebarTab(openSidebarTab === 'cover' ? null : 'cover')}
                   className="w-full flex items-center justify-between px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-800"
                 >
-                  Cover Image
+                  Cover Image & SEO
                   <span className={`transform transition-transform text-slate-400 font-bold ${openSidebarTab === 'cover' ? 'rotate-180' : ''}`}>↓</span>
                 </button>
 
@@ -752,27 +870,160 @@ const BlogEditor = () => {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                       <div className="px-8 pb-8 pt-2">
                         {!featuredImagePreview ? (
-                          <div className="relative h-48 border-2 border-dashed border-slate-300 rounded-[1.5rem] flex flex-col items-center justify-center bg-white/50 cursor-pointer">
+                          <div className="relative h-48 border-2 border-dashed border-slate-300 rounded-[1.5rem] flex flex-col items-center justify-center bg-white/50 cursor-pointer mb-6">
                             <input type="file" onChange={handleFeaturedImageSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10" accept="image/*" />
                             <span className="text-sm font-bold text-slate-700">Click to upload cover</span>
                           </div>
                         ) : (
-                          <div className="space-y-4">
+                          <div className="space-y-4 mb-6">
                             <img src={featuredImagePreview} className="w-full h-48 object-cover rounded-[1.5rem]" alt="Preview" />
                             {!featuredImageUrl && (
                               <button onClick={uploadFeaturedImage} type="button" className="w-full py-3.5 bg-yellow-400 font-bold rounded-xl text-xs uppercase tracking-widest text-slate-900 hover:bg-[#FFED00]">
                                   {isUploadingImage ? 'Uploading...' : 'Confirm Upload'}
                               </button>
                             )}
-                            <button onClick={clearFeaturedImage} type="button" className="w-full py-3.5 bg-slate-100 font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-slate-200">Remove</button>
+                            <button onClick={clearFeaturedImage} type="button" className="w-full py-3.5 bg-slate-100 font-bold rounded-xl text-xs uppercase hover:bg-slate-200">Remove Image</button>
                           </div>
                         )}
+
+                        <div className="mt-6 pt-6 border-t border-slate-100 space-y-4">
+                            <div>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Meta Title</label>
+                                <input 
+                                    type="text" value={metaTitle} 
+                                    onChange={(e) => setMetaTitle(e.target.value)}
+                                    placeholder="SEO Title..."
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1A4484] font-bold text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Meta Description</label>
+                                <textarea 
+                                    value={metaDescription} 
+                                    onChange={(e) => setMetaDescription(e.target.value)}
+                                    placeholder="SEO Description..."
+                                    rows={3}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1A4484] font-bold text-sm resize-none"
+                                />
+                            </div>
+                        </div>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
+              <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-slate-200/60 shadow-sm overflow-hidden relative">
+                <button 
+                  type="button"
+                  onClick={() => setOpenSidebarTab(openSidebarTab === 'author' ? null : 'author')}
+                  className="w-full flex items-center justify-between px-8 py-6 text-xs font-black uppercase tracking-widest text-slate-800"
+                >
+                  Author Details
+                  <span className={`transform transition-transform text-slate-400 font-bold ${openSidebarTab === 'author' ? 'rotate-180' : ''}`}>↓</span>
+                </button>
+                <AnimatePresence>
+                  {openSidebarTab === 'author' && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="px-8 pb-8 space-y-4">
+                        {authorsList.length > 0 && !isAddingNewAuthor ? (
+                          <>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Select Author *</label>
+                            <div className="grid grid-cols-1 gap-2 mb-4 max-h-48 overflow-y-auto pr-1">
+                              {authorsList.map((author, idx) => (
+                                <div 
+                                  key={idx} 
+                                  onClick={() => handleSelectAuthor(author)}
+                                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${authorName === author.name ? 'border-[#1A4484] bg-blue-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-slate-50'}`}
+                                >
+                                  {author.image ? (
+                                    <img src={author.image} alt={author.name} className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0" />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs shrink-0">
+                                      {author.name.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div className="flex-1 truncate">
+                                    <p className="text-sm font-bold text-slate-800 truncate">{author.name}</p>
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    {authorName === author.name && <span className="text-[#1A4484] text-lg font-bold mr-1">✓</span>}
+                                    <button 
+                                      type="button" 
+                                      onClick={(e) => handleEditAuthor(e, author)}
+                                      className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-[#1A4484] hover:text-white transition-colors"
+                                    >✎</button>
+                                    <button 
+                                      type="button" 
+                                      onClick={(e) => handleDeleteAuthor(e, author.name)}
+                                      className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                    >✕</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <button 
+                              type="button" 
+                              onClick={() => { setEditingAuthorOriginalName(null); setAuthorName(''); setAuthorImage(''); setAuthorLink(''); setAuthorDescription(''); setIsAddingNewAuthor(true); }}
+                              className="w-full py-3 bg-slate-100 font-bold rounded-xl text-xs uppercase tracking-widest text-slate-600 hover:bg-slate-200 transition-colors"
+                            >+ Add New Author</button>
+                          </>
+                        ) : (
+                          <>
+                            <div>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Name *</label>
+                              <input 
+                                type="text" value={authorName} 
+                                onChange={(e) => setAuthorName(e.target.value)}
+                                placeholder="e.g. Jane Doe"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1A4484] font-bold text-sm"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Profile Image</label>
+                              <div className="flex items-center gap-3">
+                                {authorImage ? <img src={authorImage} alt="avatar" className="w-10 h-10 rounded-full object-cover shrink-0" /> : <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">IMG</div>}
+                                <div className="relative flex-1 h-[42px]">
+                                  <input type="file" onChange={uploadAuthorImage} className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" accept="image/*" />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 transition-colors">
+                                    {isUploadingAuthorImage ? 'Uploading...' : (authorImage ? 'Change Image' : 'Upload Image')}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Profile Link</label>
+                              <input 
+                                type="text" value={authorLink} 
+                                onChange={(e) => setAuthorLink(e.target.value)}
+                                placeholder="https://linkedin.com/in/..."
+                                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1A4484] font-bold text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Author Description</label>
+                              <textarea 
+                                value={authorDescription} 
+                                onChange={(e) => setAuthorDescription(e.target.value)}
+                                placeholder="Short bio about the author..."
+                                rows={4}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:ring-2 focus:ring-[#1A4484] font-bold text-sm resize-none"
+                              />
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                               {authorsList.length > 0 && <button type="button" onClick={() => { setEditingAuthorOriginalName(null); setIsAddingNewAuthor(false); if (!authorsList.find(a => a.name === authorName)) handleSelectAuthor(authorsList[0]); }} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl text-xs uppercase text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>}
+                               <button type="button" onClick={handleSaveNewAuthor} className="flex-1 py-3 bg-[#1A4484] font-bold rounded-xl text-xs uppercase text-white hover:bg-slate-900 transition-colors shadow-md">
+                                 {editingAuthorOriginalName ? 'Update Author' : 'Save Author'}
+                               </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           </aside>
         )}
