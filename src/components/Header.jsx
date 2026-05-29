@@ -17,7 +17,6 @@ export default function StickySearchHeader() {
   const { user } = useUser();
   const navigate = useNavigate();
   const userId = user?.userId || user?._id || null;
-  const isPartner = user?.role?.isPartner;
 
   const handleLogout = async () => {
     const toastId = toast.loading("Logging out...", { position: "bottom-right" });
@@ -44,21 +43,32 @@ export default function StickySearchHeader() {
 
   return (
     <div className="sticky top-0 z-50 border-b shadow-sm bg-background text-foreground">
-      {/* Updated width to max-w-8xl (or you can use max-w-[1500px] to match your blog editor exactly) */}
       <div className="max-w-8xl mx-auto px-4 py-3 md:px-6 md:py-3">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
           
           {/* ✅ LEFT: Logo */}
-          <div
-            className="flex items-center gap-2 cursor-pointer select-none"
-            onClick={() => navigate(isPartner ? "/partner-dashboard" : "/dashboard")}
-            title="Go to Dashboard"
-          >
-            <img src={logo} alt="SCGB" className="h-10 w-20 md:w-auto" />
+          <div className="flex-1 flex justify-start">
+            <div
+              className="flex items-center gap-2 cursor-pointer select-none"
+              onClick={() => navigate("/")}
+              title="Go to Home"
+            >
+              <img src={logo} alt="SCGB" className="h-10 w-20 md:w-auto" />
+            </div>
           </div>
 
-          {/* ✅ RIGHT: Actions (Only User Menu & Logout) */}
-          <div className="flex items-center gap-2">
+          {/* ✅ CENTER: Navbar Links */}
+          <nav className="flex justify-center shrink-0">
+            <button 
+              onClick={() => navigate('/blog-manager')}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              Blogs
+            </button>
+          </nav>
+
+          {/* ✅ RIGHT: User Menu */}
+          <div className="flex-1 flex justify-end items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 p-0 rounded-full md:px-3 md:py-1.5 md:rounded-xl border border-border bg-background/40 hover:bg-muted/40 transition">
@@ -73,6 +83,7 @@ export default function StickySearchHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
         </div>
       </div>
     </div>
