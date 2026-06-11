@@ -58,12 +58,18 @@ export default function StickySearchHeader() {
           </div>
 
           {/* ✅ CENTER: Navbar Links */}
-          <nav className="flex justify-center shrink-0">
+          <nav className="flex justify-center shrink-0 gap-6">
             <button 
               onClick={() => navigate('/blog-manager')}
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               Blogs
+            </button>
+            <button 
+              onClick={() => navigate('/testimonials')}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              Testimonials
             </button>
           </nav>
 
