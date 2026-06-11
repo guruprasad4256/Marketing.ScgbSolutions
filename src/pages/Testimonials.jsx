@@ -56,8 +56,8 @@ const TestimonialForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name.trim() || !title.trim() || !role.trim() || !text.trim() || !imageUrl) {
-      return alert("Please fill out all required fields, including uploading a profile photo.");
+    if (!name.trim() || !title.trim() || !role.trim() || !text.trim()) {
+      return alert("Please fill out all required fields.");
     }
     if (selectedSites.length === 0) {
       return alert("Please select at least one website to publish this testimonial to.");
@@ -69,7 +69,7 @@ const TestimonialForm = () => {
       role: role.trim(),
       text: text.trim(),
       rating: rating,
-      image: imageUrl, // Populated from Cloudinary upload
+      image: imageUrl || "https://res.cloudinary.com/dqjvtgezs/image/upload/v1781162362/moh-dashboard-images/w5uzcqdywjttz3nw6vpw.webp", // Populated from Cloudinary upload
       targetWebsites: selectedSites,
     };
 
@@ -129,7 +129,7 @@ const TestimonialForm = () => {
 
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
-                  Profile Photo *
+                  Profile Photo
                 </label>
                 <div className="flex items-center gap-3">
                   {imagePreview ? (
@@ -139,9 +139,11 @@ const TestimonialForm = () => {
                       className="w-11 h-11 rounded-full object-cover shrink-0 border border-slate-200"
                     />
                   ) : (
-                    <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-[10px] font-black border border-slate-200 shrink-0">
-                      NO IMG
-                    </div>
+                    <img
+                      src="https://res.cloudinary.com/dqjvtgezs/image/upload/v1781162362/moh-dashboard-images/w5uzcqdywjttz3nw6vpw.webp"
+                      alt="preview"
+                      className="w-11 h-11 rounded-full object-cover shrink-0 border border-slate-200 shrink-0"
+                    />
                   )}
                   <div className="relative flex-1 h-[46px]">
                     <input
