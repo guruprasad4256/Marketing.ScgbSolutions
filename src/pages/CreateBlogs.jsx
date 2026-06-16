@@ -5,11 +5,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import BlotFormatter from 'quill-blot-formatter';
-
-// Import your Header component (Update the path if your Header is in a different folder)
 import Header from "@/components/Header";
 
-// Register Quill Modules
 const Table = Quill.import('modules/table');
 
 Quill.register({
