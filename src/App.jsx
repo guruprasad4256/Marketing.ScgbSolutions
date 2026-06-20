@@ -3,9 +3,11 @@ import Login from "@/components/auth/Login";
 import BlogEditor from "./pages/CreateBlogs"; 
 import BlogManager from "./pages/ManageBlogs"; 
 import TestimonialForm from "./pages/Testimonials"; 
+import CreateRole from "./pages/CreateRoles";
 import ProtectedRoute from "@/context/ProtectedRoutes";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/context/UserContext";
+import ManageRoles from "./pages/ManageRoles";
 
 export default function App() {
  return (
@@ -42,7 +44,27 @@ export default function App() {
         </ProtectedRoute>
        }
       />
-     </Routes>
+
+      {/* --- Create Role Page (Protected) --- */}
+      <Route
+       path="/create-role"
+       element={
+        <ProtectedRoute allowedRoles={["isAdmin", "isSales"]}>
+         <CreateRole />
+        </ProtectedRoute>
+       }
+      />
+      
+      <Route
+       path="/manage-role"
+       element={
+        <ProtectedRoute allowedRoles={["isAdmin", "isSales"]}>
+         <ManageRoles />
+        </ProtectedRoute>
+       }
+      />
+
+      </Routes>
     </BrowserRouter>
    </UserProvider>
   </>

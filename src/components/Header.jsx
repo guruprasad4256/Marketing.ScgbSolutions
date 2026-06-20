@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, ChevronDown } from 'lucide-react';
 import { api } from '@/utils/Api';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -58,19 +58,46 @@ export default function StickySearchHeader() {
           </div>
 
           {/* ✅ CENTER: Navbar Links */}
-          <nav className="flex justify-center shrink-0 gap-6">
-            <button 
-              onClick={() => navigate('/blog-manager')}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-            >
-              Blogs
-            </button>
+          <nav className="flex items-center justify-center shrink-0 gap-6">
+            
+            {/* Blogs Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors outline-none cursor-pointer">
+                Blogs <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-40">
+                <DropdownMenuItem onClick={() => navigate('/blog-editor')} className="cursor-pointer">
+                  Create Blog
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/blog-manager')} className="cursor-pointer">
+                  Manage Blogs
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Testimonials */}
             <button 
               onClick={() => navigate('/testimonials')}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors outline-none cursor-pointer"
             >
               Testimonials
             </button>
+
+            {/* Roles Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors outline-none cursor-pointer">
+                Roles <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-40">
+                <DropdownMenuItem onClick={() => navigate('/create-role')} className="cursor-pointer">
+                  Create Role
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/manage-role')} className="cursor-pointer">
+                  Manage Roles
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
           </nav>
 
           {/* ✅ RIGHT: User Menu */}
@@ -85,7 +112,7 @@ export default function StickySearchHeader() {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem disabled><User className="mr-2 h-4 w-4" />{userName}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer"><LogOut className="mr-2 h-4 w-4" />Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
