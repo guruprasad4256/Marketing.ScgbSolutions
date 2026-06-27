@@ -6,7 +6,9 @@ import {
   Plus, Trash2, ChevronDown, Image as ImageIcon, 
   Code, Monitor, Smartphone, Database, Server, Cloud, 
   Shield, Zap, CheckCircle, Users, Briefcase, TrendingUp, 
-  ShoppingCart, DollarSign, Gauge, FileText, Clock, Play, RefreshCw, Sliders
+  ShoppingCart, DollarSign, Gauge, FileText, Clock, Play, RefreshCw, Sliders,
+  PenTool, Palette, Film, Scale, Calculator, FileSpreadsheet, Layout, Target, 
+  Megaphone, Calendar, Clipboard, Lightbulb, BookOpen, UserPlus
 } from 'lucide-react';
 
 // Shadcn UI Components
@@ -47,6 +49,20 @@ const AVAILABLE_ICONS = [
   { name: "Play", icon: <Play className="w-4 h-4" /> },
   { name: "RefreshCw", icon: <RefreshCw className="w-4 h-4" /> },
   { name: "Sliders", icon: <Sliders className="w-4 h-4" /> },
+  { name: "PenTool", icon: <PenTool className="w-4 h-4" /> },
+  { name: "Palette", icon: <Palette className="w-4 h-4" /> },
+  { name: "Film", icon: <Film className="w-4 h-4" /> },
+  { name: "Scale", icon: <Scale className="w-4 h-4" /> },
+  { name: "Calculator", icon: <Calculator className="w-4 h-4" /> },
+  { name: "FileSpreadsheet", icon: <FileSpreadsheet className="w-4 h-4" /> },
+  { name: "Layout", icon: <Layout className="w-4 h-4" /> },
+  { name: "Target", icon: <Target className="w-4 h-4" /> },
+  { name: "Megaphone", icon: <Megaphone className="w-4 h-4" /> },
+  { name: "Calendar", icon: <Calendar className="w-4 h-4" /> },
+  { name: "Clipboard", icon: <Clipboard className="w-4 h-4" /> },
+  { name: "Lightbulb", icon: <Lightbulb className="w-4 h-4" /> },
+  { name: "BookOpen", icon: <BookOpen className="w-4 h-4" /> },
+  { name: "UserPlus", icon: <UserPlus className="w-4 h-4" /> },
 ];
 
 const CreateRole = () => {
@@ -411,7 +427,7 @@ const CreateRole = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
               <div>
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Main Heading (Black)</label>
-                <Input type="text" value={portfolioHeading} onChange={(e) => setPortfolioHeading(e.target.value)} className="bg-white border-slate-200 text-sm h-11" />
+                <Input type="text" value={portfolioHeading} onChange={(e) => setPortfolioHeading(e.target.value)} className="bg-white border-slate-200 text-sm h-11 mb-4" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Subheading Context</label>
