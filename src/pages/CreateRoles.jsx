@@ -701,7 +701,6 @@ const CreateRole = () => {
 
         </div>
 
-        {/* --- RIGHT COLUMN: BLUEPRINT SIDEBAR --- */}
         <aside className="xl:col-span-4 space-y-6">
           <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="bg-white border border-slate-200 shadow-sm rounded-lg overflow-hidden sticky top-8">
             <button onClick={() => setOpenSidebarTab(openSidebarTab === 'seo' ? '' : 'seo')} className="w-full flex items-center justify-between p-6 text-sm font-bold text-slate-800 bg-slate-50 border-b border-slate-200">System Core Settings & SEO Rules Parameters<ChevronDown className={`w-4 h-4 text-slate-500 transform transition-transform ${openSidebarTab === 'seo' ? 'rotate-180' : ''}`} /></button>
