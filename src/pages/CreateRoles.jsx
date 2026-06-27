@@ -152,7 +152,6 @@ const CreateRole = () => {
 
   // --- CAPABILITIES (PORTFOLIO) ACTIONS ---
   const addCapability = () => {
-    // Automatically sets alternating design theme defaults by parity index sequence (red, yellow, red, yellow...)
     const autoTheme = capabilities.length % 2 === 0 ? 'red' : 'yellow';
     setCapabilities([...capabilities, { title: '', category: '', desc: '', icon: 'ShoppingCart', theme: autoTheme, size: 'md:col-span-2', logos: [] }]);
     setOpenCapabilityIndex(capabilities.length);
@@ -163,7 +162,6 @@ const CreateRole = () => {
     setCapabilities(newCaps);
   };
   const removeCapability = (index) => {
-    // Re-calculates sequential pattern tags seamlessly if layout layers drop mid-creation
     const filtered = capabilities.filter((_, i) => i !== index).map((cap, idx) => ({
       ...cap,
       theme: idx % 2 === 0 ? 'red' : 'yellow'
@@ -271,7 +269,7 @@ const CreateRole = () => {
   const handleCreateRole = async (e) => {
     e.preventDefault();
 
-    if (!roleName.trim()) return alert("Please enter an internal Role Name Configuration.");
+    if (!roleName.trim()) return alert("Please select an internal Role Name Configuration.");
     if (!heroTitle.trim()) return alert("Please enter a Hero Section H1 Title.");
     if (featuredImageFile && !featuredImageUrl) return alert('Please click "Confirm Upload" on your chosen featured asset layout first.');
     if (!featuredImageUrl) return alert("A Featured Image Asset is required.");
@@ -294,7 +292,7 @@ const CreateRole = () => {
       pageData: {
         hero: {
           title: heroTitle.trim(),
-          subtitle: heroSubtitle.trim(),
+          subtitle: heroSubtitle, // Now saves raw string from Textarea
           backgroundImage: featuredImageUrl 
         },
         portfolio: {
@@ -377,7 +375,12 @@ const CreateRole = () => {
                 </div>
                 <div>
                   <div className="flex justify-between mb-2"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">Hero Description Paragraph</label></div>
-                  <Textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Get pre-vetted specialists well matched to your stack..." className="min-h-[100px] bg-white border-slate-200 rounded-md focus-visible:ring-[#1A4484] text-slate-600 resize-none text-sm" />
+                  <Textarea 
+                    value={heroSubtitle} 
+                    onChange={(e) => setHeroSubtitle(e.target.value)} 
+                    placeholder="Get pre-vetted specialists well matched to your stack..."
+                    className="bg-white border-slate-200 resize-none min-h-[120px] text-sm text-slate-600"
+                  />
                 </div>
               </div>
               <div className="w-full md:w-[40%]">
@@ -408,9 +411,7 @@ const CreateRole = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
               <div>
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Main Heading (Black)</label>
-                <Input type="text" value={portfolioHeading} onChange={(e) => setPortfolioHeading(e.target.value)} className="bg-white border-slate-200 text-sm h-11 mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlighted Text (Red Gradient Color)</label>
-                <Input type="text" value={portfolioHeadingHighlight} onChange={(e) => setPortfolioHeadingHighlight(e.target.value)} placeholder="e.g., Quality First." className="bg-white border-slate-200 text-sm h-11" />
+                <Input type="text" value={portfolioHeading} onChange={(e) => setPortfolioHeading(e.target.value)} className="bg-white border-slate-200 text-sm h-11" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Subheading Context</label>
@@ -494,6 +495,7 @@ const CreateRole = () => {
                  <div key={index} className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
                    <div className="p-4 cursor-pointer flex justify-between items-center hover:bg-slate-50" onClick={() => setOpenBcIndex(openBcIndex === index ? null : index)}>
                      <span className="font-semibold text-sm text-slate-800">{bc.title || `Metrics Parameter Block #${index + 1}`}</span>
+                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeBusinessCase(index); }} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"><Trash2 className="w-4 h-4" /></Button>
                    </div>
                    {openBcIndex === index && (
                      <div className="p-6 pt-0 border-t border-slate-100 space-y-6 mt-4 bg-slate-50/50">
@@ -517,65 +519,11 @@ const CreateRole = () => {
             </div>
           </motion.div>
 
-          {/* 4. SERVICES SECTION */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">4. Services Slider Stream</h3>
-                <p className="text-xs text-slate-500 mt-1">Configure scroll capabilities array blocks.</p>
-              </div>
-              <Button variant="outline" size="sm" onClick={addService} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Stream Service</Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
-              <div>
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Badge Top Callout Text</label>
-                <Input type="text" value={servicesBadge} onChange={(e) => setServicesBadge(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Prefix Text (Dark Layout Color)</label>
-                <Input type="text" value={servicesHeadingPrefix} onChange={(e) => setServicesHeadingPrefix(e.target.value)} className="bg-white border-slate-200 text-sm" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlighted Text (Red Gradient Color)</label>
-                <Input type="text" value={servicesHeadingHighlight} onChange={(e) => setServicesHeadingHighlight(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Subheading Context</label>
-                <Textarea value={servicesSubheading} onChange={(e) => setServicesSubheading(e.target.value)} className="bg-white border-slate-200 resize-none h-[42px] text-sm" />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-               {services.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No streaming services added.</div>}
-               {services.map((service, index) => (
-                 <div key={index} className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-                   <div className="p-4 cursor-pointer flex justify-between items-center hover:bg-slate-50" onClick={() => setOpenServiceIndex(openServiceIndex === index ? null : index)}>
-                     <span className="font-semibold text-sm text-slate-800">{service.title || `Service Parameter Block #${index + 1}`}</span>
-                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeService(index); }} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"><Trash2 className="w-4 h-4" /></Button>
-                   </div>
-                   {openServiceIndex === index && (
-                     <div className="p-6 pt-0 border-t border-slate-100 space-y-6 mt-4 bg-slate-50/50">
-                       <div className="space-y-4">
-                         <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Title</label><Input type="text" value={service.title} onChange={(e) => updateService(index, 'title', e.target.value)} className="bg-white border-slate-200 text-sm" /></div>
-                         <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Description Narrative</label><Textarea value={service.description} onChange={(e) => updateService(index, 'description', e.target.value)} className="bg-white border-slate-200 resize-none h-20 text-sm" /></div>
-                       </div>
-                       <div>
-                         <label className="text-xs font-semibold text-slate-600 block mb-2">Assign Looked-up Icon Vector</label>
-                         <div className="flex flex-wrap gap-2 pt-2">
-                           {AVAILABLE_ICONS.map((iObj) => (
-                             <button key={iObj.name} type="button" onClick={() => updateService(index, 'icon', iObj.name)} className={`p-2.5 rounded-lg border flex items-center justify-center transition-all ${service.icon === iObj.name ? 'bg-[#1A4484] text-white border-[#1A4484]' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`} title={iObj.name}>{iObj.icon}</button>
-                           ))}
-                         </div>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-               ))}
-            </div>
-          </motion.div>
-
-          {/* 5. TECHNOLOGIES SECTION */}
+          {/* 4. TECHNOLOGIES SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">5. Technologies Ecosystem Grid</h3>
+                <h3 className="text-lg font-bold text-slate-900">4. Technologies Ecosystem Grid</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure language and workspace proficiencies.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addTechCategory} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Tech Block</Button>
@@ -627,11 +575,11 @@ const CreateRole = () => {
             </div>
           </motion.div>
 
-          {/* 6. HOW IT WORKS SECTION */}
+          {/* 5. HOW IT WORKS SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">6. Onboarding Workflow Timeline</h3>
+                <h3 className="text-lg font-bold text-slate-900">5. Onboarding Workflow Timeline</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure progressive onboarding execution steps.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addHiwStep} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Delivery Step</Button>
@@ -679,9 +627,9 @@ const CreateRole = () => {
             </div>
           </motion.div>
 
-          {/* 7. FAQ SECTION */}
+          {/* 6. FAQ SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">7. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">6. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
             <div className="space-y-4">
                {faqs.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No dynamic FAQ query objects added.</div>}
                {faqs.map((faq, index) => (
@@ -711,7 +659,33 @@ const CreateRole = () => {
               {openSidebarTab === 'seo' && (
                 <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-white">
                   <div className="p-6 space-y-5">
-                    <div><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Internal Identity Name Label</label><Input type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder="e.g., Senior Node.js Developer" className="bg-white border-slate-200 text-sm rounded-md" /></div>
+                    <div>
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Internal Identity Name Label</label>
+                      <select 
+                        value={roleName} 
+                        onChange={(e) => setRoleName(e.target.value)} 
+                        className="flex w-full bg-white border border-slate-200 focus-visible:ring-2 focus-visible:ring-[#1A4484] focus-visible:outline-none text-sm h-10 rounded-md px-3"
+                      >
+                        <option value="" disabled>Select a role...</option>
+                        <option value="Graphic Designer">Graphic Designer</option>
+                        <option value="Video Editor">Video Editor</option>
+                        <option value="Legal Professional">Legal Professional</option>
+                        <option value="Web Developer">Web Developer</option>
+                        <option value="Accounts Executive">Accounts Executive</option>
+                        <option value="UI Designer">UI Designer</option>
+                        <option value="SEO Expert">SEO Expert</option>
+                        <option value="Performance Marketer">Performance Marketer</option>
+                        <option value="Executive Assistant">Executive Assistant</option>
+                        <option value="Creative Strategist">Creative Strategist</option>
+                        <option value="Copywriter">Copywriter</option>
+                        <option value="Blog Writer">Blog Writer</option>
+                        <option value="Marketing Strategist">Marketing Strategist</option>
+                        <option value="Legal Strategiest">Legal Strategiest</option>
+                        <option value="Recruitment VA">Recruitment VA</option>
+                        <option value="Content Strategist">Content Strategist</option>
+                        <option value="Brand Strategiest">Brand Strategiest</option>
+                      </select>
+                    </div>
                     <div className="pt-5 border-t border-slate-100"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Custom Router Routing Slug (URL Parameter)</label><Input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g., hire-nodejs-developer" className="bg-white border-slate-200 text-sm rounded-md" /></div>
                     <div className="pt-5 border-t border-slate-100"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Meta Document Title</label><Input type="text" value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} placeholder="Target SEO Page Title Tag..." className="bg-white border-slate-200 text-sm rounded-md" /></div>
                     <div><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Meta Content Description</label><Textarea value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} rows={4} placeholder="Target Meta Page Description Tag..." className="bg-white border-slate-200 resize-none text-sm rounded-md" /></div>

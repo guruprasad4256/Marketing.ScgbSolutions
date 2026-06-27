@@ -8,7 +8,9 @@ import {
   ChevronDown, Image as ImageIcon, 
   Code, Monitor, Smartphone, Database, Server, Cloud, 
   Shield, CheckCircle, Users, Briefcase, TrendingUp, 
-  ShoppingCart, DollarSign, Gauge, FileText, Clock, Play, RefreshCw, Sliders
+  ShoppingCart, DollarSign, Gauge, FileText, Clock, Play, RefreshCw, Sliders,
+  PenTool, Palette, Film, Scale, Calculator, FileSpreadsheet, Layout, Target, 
+  Megaphone, Calendar, Clipboard, Lightbulb, BookOpen, UserPlus
 } from 'lucide-react';
 
 // Shadcn UI Components
@@ -47,6 +49,20 @@ const AVAILABLE_ICONS = [
   { name: "Play", icon: <Play className="w-4 h-4" /> },
   { name: "RefreshCw", icon: <RefreshCw className="w-4 h-4" /> },
   { name: "Sliders", icon: <Sliders className="w-4 h-4" /> },
+  { name: "PenTool", icon: <PenTool className="w-4 h-4" /> },
+  { name: "Palette", icon: <Palette className="w-4 h-4" /> },
+  { name: "Film", icon: <Film className="w-4 h-4" /> },
+  { name: "Scale", icon: <Scale className="w-4 h-4" /> },
+  { name: "Calculator", icon: <Calculator className="w-4 h-4" /> },
+  { name: "FileSpreadsheet", icon: <FileSpreadsheet className="w-4 h-4" /> },
+  { name: "Layout", icon: <Layout className="w-4 h-4" /> },
+  { name: "Target", icon: <Target className="w-4 h-4" /> },
+  { name: "Megaphone", icon: <Megaphone className="w-4 h-4" /> },
+  { name: "Calendar", icon: <Calendar className="w-4 h-4" /> },
+  { name: "Clipboard", icon: <Clipboard className="w-4 h-4" /> },
+  { name: "Lightbulb", icon: <Lightbulb className="w-4 h-4" /> },
+  { name: "BookOpen", icon: <BookOpen className="w-4 h-4" /> },
+  { name: "UserPlus", icon: <UserPlus className="w-4 h-4" /> },
 ];
 
 // ==========================================
@@ -73,7 +89,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
 
   // --- 2. CAPABILITIES (PORTFOLIO BENTO GRID) STATE ---
   const [portfolioHeading, setPortfolioHeading] = useState('Built by Our Developers.');
-  const [portfolioHeadingHighlight, setPortfolioHeadingHighlight] = useState('');
   const [portfolioSubheading, setPortfolioSubheading] = useState('Our developers ship high-load systems and pixel-perfect UIs that drive actual business growth.');
   const [capabilities, setCapabilities] = useState([]);
   const [openCapabilityIndex, setOpenCapabilityIndex] = useState(null);
@@ -86,15 +101,7 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [businessCases, setBusinessCases] = useState([]);
   const [openBcIndex, setOpenBcIndex] = useState(null);
 
-  // --- 4. SERVICES SECTION STATE ---
-  const [servicesBadge, setServicesBadge] = useState('Services • What You Can Hand Off From Day One');
-  const [servicesHeadingPrefix, setServicesHeadingPrefix] = useState('Specialists Who Ship.');
-  const [servicesHeadingHighlight, setServicesHeadingHighlight] = useState('Not Generalists Who Dabble.');
-  const [servicesSubheading, setServicesSubheading] = useState("Here's what your hired developer can start building immediately:");
-  const [services, setServices] = useState([]);
-  const [openServiceIndex, setOpenServiceIndex] = useState(null);
-
-  // --- 5. TECHNOLOGIES GRID STATE ---
+  // --- 4. TECHNOLOGIES GRID STATE ---
   const [techBadge, setTechBadge] = useState('Technologies Used');
   const [techHeadingPrefix, setTechHeadingPrefix] = useState('The tools and tech stack');
   const [techHeadingHighlight, setTechHeadingHighlight] = useState('we work with.');
@@ -102,14 +109,14 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [techCategories, setTechCategories] = useState([]);
   const [openTechIndex, setOpenTechIndex] = useState(null);
 
-  // --- 6. HOW IT WORKS TIMELINE STATE ---
+  // --- 5. HOW IT WORKS TIMELINE STATE ---
   const [hiwBadge, setHiwBadge] = useState('How It Works');
   const [hiwHeadingPrefix, setHiwHeadingPrefix] = useState('From Brief to');
   const [hiwHeadingHighlight, setHiwHeadingHighlight] = useState('Build.');
   const [howItWorksSteps, setHowItWorksSteps] = useState([]);
   const [openHiwIndex, setOpenHiwIndex] = useState(null);
 
-  // --- 7. FAQ SECTION STATE ---
+  // --- 6. FAQ SECTION STATE ---
   const [faqs, setFaqs] = useState([]);
   const [openEditorFaqIndex, setOpenEditorFaqIndex] = useState(null);
 
@@ -141,7 +148,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
         if (pd.hero?.backgroundImage) setFeaturedImagePreview(pd.hero.backgroundImage);
 
         setPortfolioHeading(pd.portfolio?.heading || '');
-        setPortfolioHeadingHighlight(pd.portfolio?.headingHighlight || '');
         setPortfolioSubheading(pd.portfolio?.subheading || '');
         setCapabilities(pd.portfolio?.projects || []);
 
@@ -150,12 +156,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
         setBcHeadingHighlight(pd.businessCase?.headingHighlight || '');
         setBcSubheading(pd.businessCase?.subheading || '');
         setBusinessCases(pd.businessCase?.reasons || []);
-
-        setServicesBadge(pd.services?.badge || '');
-        setServicesHeadingPrefix(pd.services?.headingPrefix || '');
-        setServicesHeadingHighlight(pd.services?.headingHighlight || '');
-        setServicesSubheading(pd.services?.subheading || '');
-        setServices(pd.services?.services || []);
 
         setTechBadge(pd.technologies?.badge || '');
         setTechHeadingPrefix(pd.technologies?.headingPrefix || '');
@@ -235,10 +235,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
     const newCaps = [...capabilities]; newCaps[capIndex].logos = newCaps[capIndex].logos.filter((_, i) => i !== logoIndex); setCapabilities(newCaps);
   };
 
-  const addService = () => { setServices([...services, { title: '', description: '', icon: 'CheckCircle' }]); setOpenServiceIndex(services.length); };
-  const updateService = (index, field, value) => { const newServices = [...services]; newServices[index] = { ...newServices[index], [field]: value }; setServices(newServices); };
-  const removeService = (index) => { setServices(services.filter((_, i) => i !== index)); if (openServiceIndex === index) setOpenServiceIndex(null); };
-
   const addBusinessCase = () => { setBusinessCases([...businessCases, { stat: '', title: '', desc: '', icon: 'Zap' }]); setOpenBcIndex(businessCases.length); };
   const updateBusinessCase = (index, field, value) => { const newBc = [...businessCases]; newBc[index] = { ...newBc[index], [field]: value }; setBusinessCases(newBc); };
   const removeBusinessCase = (index) => { setBusinessCases(businessCases.filter((_, i) => i !== index)); if (openBcIndex === index) setOpenBcIndex(null); };
@@ -264,7 +260,7 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
 
   const handleUpdateRole = async (e) => {
     e.preventDefault();
-    if (!roleName.trim()) return alert("Please enter an internal Role Name Configuration.");
+    if (!roleName.trim()) return alert("Please select an internal Role Name Configuration.");
     if (!heroTitle.trim()) return alert("Please enter a Hero Section H1 Title.");
     if (featuredImageFile && !featuredImageUrl) return alert('Please click "Confirm Upload" on your chosen featured asset layout first.');
     if (!featuredImageUrl) return alert("A Featured Image Asset is required.");
@@ -277,9 +273,8 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
     const payload = {
       roleName: roleName.trim(), slug: finalSlug, seo: { metaTitle: metaTitle.trim(), metaDescription: metaDescription.trim() },
       pageData: {
-        hero: { title: heroTitle.trim(), subtitle: heroSubtitle.trim(), backgroundImage: featuredImageUrl },
-        portfolio: { heading: portfolioHeading.trim(), headingHighlight: portfolioHeadingHighlight.trim(), subheading: portfolioSubheading.trim(), projects: capabilities },
-        services: { badge: servicesBadge.trim(), headingPrefix: servicesHeadingPrefix.trim(), headingHighlight: servicesHeadingHighlight.trim(), subheading: servicesSubheading.trim(), services: services },
+        hero: { title: heroTitle.trim(), subtitle: heroSubtitle, backgroundImage: featuredImageUrl },
+        portfolio: { heading: portfolioHeading.trim(), subheading: portfolioSubheading.trim(), projects: capabilities },
         businessCase: { badge: bcBadge.trim(), headingPrefix: bcHeadingPrefix.trim(), headingHighlight: bcHeadingHighlight.trim(), subheading: bcSubheading.trim(), reasons: businessCases },
         technologies: { badge: techBadge.trim(), headingPrefix: techHeadingPrefix.trim(), headingHighlight: techHeadingHighlight.trim(), subheading: techSubheading.trim(), categories: processedTechCategories },
         howItWorks: { badge: hiwBadge.trim(), headingPrefix: hiwHeadingPrefix.trim(), headingHighlight: hiwHeadingHighlight.trim(), steps: howItWorksSteps },
@@ -342,7 +337,12 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
                 </div>
                 <div>
                   <div className="flex justify-between mb-2"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">Hero Description Paragraph</label></div>
-                  <Textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Get pre-vetted specialists well matched to your stack..." className="min-h-[100px] bg-white border-slate-200 rounded-md focus-visible:ring-[#1A4484] text-slate-600 resize-none text-sm" />
+                  <Textarea 
+                    value={heroSubtitle} 
+                    onChange={(e) => setHeroSubtitle(e.target.value)} 
+                    placeholder="Get pre-vetted specialists well matched to your stack..."
+                    className="bg-white border-slate-200 resize-none min-h-[120px] text-sm text-slate-600"
+                  />
                 </div>
               </div>
               <div className="w-full md:w-[40%]">
@@ -374,8 +374,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
               <div>
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Main Heading (Black)</label>
                 <Input type="text" value={portfolioHeading} onChange={(e) => setPortfolioHeading(e.target.value)} className="bg-white border-slate-200 text-sm h-11 mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlighted Text (Red Gradient Color)</label>
-                <Input type="text" value={portfolioHeadingHighlight} onChange={(e) => setPortfolioHeadingHighlight(e.target.value)} placeholder="e.g., Quality First." className="bg-white border-slate-200 text-sm h-11" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Subheading Context</label>
@@ -483,65 +481,11 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 4. SERVICES SECTION */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">4. Services Slider Stream</h3>
-                <p className="text-xs text-slate-500 mt-1">Configure scroll capabilities array blocks.</p>
-              </div>
-              <Button variant="outline" size="sm" onClick={addService} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Stream Service</Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
-              <div>
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Badge Top Callout Text</label>
-                <Input type="text" value={servicesBadge} onChange={(e) => setServicesBadge(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Prefix Text (Dark Layout Color)</label>
-                <Input type="text" value={servicesHeadingPrefix} onChange={(e) => setServicesHeadingPrefix(e.target.value)} className="bg-white border-slate-200 text-sm" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlighted Text (Red Gradient Color)</label>
-                <Input type="text" value={servicesHeadingHighlight} onChange={(e) => setServicesHeadingHighlight(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Subheading Context</label>
-                <Textarea value={servicesSubheading} onChange={(e) => setServicesSubheading(e.target.value)} className="bg-white border-slate-200 resize-none h-[42px] text-sm" />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-               {services.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No streaming services added.</div>}
-               {services.map((service, index) => (
-                 <div key={index} className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-                   <div className="p-4 cursor-pointer flex justify-between items-center hover:bg-slate-50" onClick={() => setOpenServiceIndex(openServiceIndex === index ? null : index)}>
-                     <span className="font-semibold text-sm text-slate-800">{service.title || `Service Parameter Block #${index + 1}`}</span>
-                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeService(index); }} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"><Trash2 className="w-4 h-4" /></Button>
-                   </div>
-                   {openServiceIndex === index && (
-                     <div className="p-6 pt-0 border-t border-slate-100 space-y-6 mt-4 bg-slate-50/50">
-                       <div className="space-y-4">
-                         <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Title</label><Input type="text" value={service.title} onChange={(e) => updateService(index, 'title', e.target.value)} className="bg-white border-slate-200 text-sm" /></div>
-                         <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Description Narrative</label><Textarea value={service.description} onChange={(e) => updateService(index, 'description', e.target.value)} className="bg-white border-slate-200 resize-none h-20 text-sm" /></div>
-                       </div>
-                       <div>
-                         <label className="text-xs font-semibold text-slate-600 block mb-2">Assign Looked-up Icon Vector</label>
-                         <div className="flex flex-wrap gap-2 pt-2">
-                           {AVAILABLE_ICONS.map((iObj) => (
-                             <button key={iObj.name} type="button" onClick={() => updateService(index, 'icon', iObj.name)} className={`p-2.5 rounded-lg border flex items-center justify-center transition-all ${service.icon === iObj.name ? 'bg-[#1A4484] text-white border-[#1A4484]' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`} title={iObj.name}>{iObj.icon}</button>
-                           ))}
-                         </div>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-               ))}
-            </div>
-          </motion.div>
-
-          {/* 5. TECHNOLOGIES SECTION */}
+          {/* 4. TECHNOLOGIES SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">5. Technologies Ecosystem Grid</h3>
+                <h3 className="text-lg font-bold text-slate-900">4. Technologies Ecosystem Grid</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure language and workspace proficiencies.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addTechCategory} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Tech Block</Button>
@@ -593,11 +537,11 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 6. HOW IT WORKS SECTION */}
+          {/* 5. HOW IT WORKS SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">6. Onboarding Workflow Timeline</h3>
+                <h3 className="text-lg font-bold text-slate-900">5. Onboarding Workflow Timeline</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure progressive onboarding execution steps.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addHiwStep} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Delivery Step</Button>
@@ -645,9 +589,9 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 7. FAQ SECTION */}
+          {/* 6. FAQ SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">7. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">6. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
             <div className="space-y-4">
                {faqs.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No dynamic FAQ query objects added.</div>}
                {faqs.map((faq, index) => (
@@ -677,7 +621,33 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
               {openSidebarTab === 'seo' && (
                 <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-white">
                   <div className="p-6 space-y-5">
-                    <div><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Internal Identity Name Label</label><Input type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder="e.g., Senior Node.js Developer" className="bg-white border-slate-200 text-sm rounded-md" /></div>
+                    <div>
+                      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Internal Identity Name Label</label>
+                      <select 
+                        value={roleName} 
+                        onChange={(e) => setRoleName(e.target.value)} 
+                        className="flex w-full bg-white border border-slate-200 focus-visible:ring-2 focus-visible:ring-[#1A4484] focus-visible:outline-none text-sm h-10 rounded-md px-3"
+                      >
+                        <option value="" disabled>Select a role...</option>
+                        <option value="Graphic Designer">Graphic Designer</option>
+                        <option value="Video Editor">Video Editor</option>
+                        <option value="Legal Professional">Legal Professional</option>
+                        <option value="Web Developer">Web Developer</option>
+                        <option value="Accounts Executive">Accounts Executive</option>
+                        <option value="UI Designer">UI Designer</option>
+                        <option value="SEO Expert">SEO Expert</option>
+                        <option value="Performance Marketer">Performance Marketer</option>
+                        <option value="Executive Assistant">Executive Assistant</option>
+                        <option value="Creative Strategist">Creative Strategist</option>
+                        <option value="Copywriter">Copywriter</option>
+                        <option value="Blog Writer">Blog Writer</option>
+                        <option value="Marketing Strategist">Marketing Strategist</option>
+                        <option value="Legal Strategiest">Legal Strategiest</option>
+                        <option value="Recruitment VA">Recruitment VA</option>
+                        <option value="Content Strategist">Content Strategist</option>
+                        <option value="Brand Strategiest">Brand Strategiest</option>
+                      </select>
+                    </div>
                     <div className="pt-5 border-t border-slate-100"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Custom Router Routing Slug (URL Parameter)</label><Input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g., hire-nodejs-developer" className="bg-white border-slate-200 text-sm rounded-md" /></div>
                     <div className="pt-5 border-t border-slate-100"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Meta Document Title</label><Input type="text" value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} placeholder="Target SEO Page Title Tag..." className="bg-white border-slate-200 text-sm rounded-md" /></div>
                     <div><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Meta Content Description</label><Textarea value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} rows={4} placeholder="Target Meta Page Description Tag..." className="bg-white border-slate-200 resize-none text-sm rounded-md" /></div>
@@ -763,7 +733,7 @@ const ManageRoles = () => {
   };
 
   const handleQuickSave = async () => {
-    if (!quickRoleName.trim()) return alert("Role Name cannot be empty.");
+    if (!quickRoleName.trim()) return alert("Please select a Role Name.");
     if (!quickSlug.trim()) return alert("URL Slug cannot be empty.");
 
     try {
@@ -836,11 +806,30 @@ const ManageRoles = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Internal Role Name</label>
-                    <Input 
+                    <select 
                       value={quickRoleName} 
                       onChange={(e) => setQuickRoleName(e.target.value)} 
-                      className="bg-slate-50 border-slate-200 focus-visible:ring-[#1A4484] text-sm h-11" 
-                    />
+                      className="flex w-full bg-slate-50 border border-slate-200 focus-visible:ring-2 focus-visible:ring-[#1A4484] focus-visible:outline-none text-sm h-11 rounded-md px-3"
+                    >
+                      <option value="" disabled>Select a role...</option>
+                      <option value="Graphic Designer">Graphic Designer</option>
+                      <option value="Video Editor">Video Editor</option>
+                      <option value="Legal Professional">Legal Professional</option>
+                      <option value="Web Developer">Web Developer</option>
+                      <option value="Accounts Executive">Accounts Executive</option>
+                      <option value="UI Designer">UI Designer</option>
+                      <option value="SEO Expert">SEO Expert</option>
+                      <option value="Performance Marketer">Performance Marketer</option>
+                      <option value="Executive Assistant">Executive Assistant</option>
+                      <option value="Creative Strategist">Creative Strategist</option>
+                      <option value="Copywriter">Copywriter</option>
+                      <option value="Blog Writer">Blog Writer</option>
+                      <option value="Marketing Strategist">Marketing Strategist</option>
+                      <option value="Legal Strategiest">Legal Strategiest</option>
+                      <option value="Recruitment VA">Recruitment VA</option>
+                      <option value="Content Strategist">Content Strategist</option>
+                      <option value="Brand Strategiest">Brand Strategiest</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">URL Routing Slug</label>
