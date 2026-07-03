@@ -101,7 +101,15 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [businessCases, setBusinessCases] = useState([]);
   const [openBcIndex, setOpenBcIndex] = useState(null);
 
-  // --- 4. TECHNOLOGIES GRID STATE ---
+  // --- 4. SERVICES SECTION STATE ---
+  const [servicesBadge, setServicesBadge] = useState('Services • What You Can Hand Off From Day One');
+  const [servicesHeadingPrefix, setServicesHeadingPrefix] = useState('Specialists Who Ship.');
+  const [servicesHeadingHighlight, setServicesHeadingHighlight] = useState('Not Generalists Who Dabble.');
+  const [servicesSubheading, setServicesSubheading] = useState("Here's what your hired developer can start building immediately:");
+  const [services, setServices] = useState([]);
+  const [openServiceIndex, setOpenServiceIndex] = useState(null);
+
+  // --- 5. TECHNOLOGIES GRID STATE ---
   const [techBadge, setTechBadge] = useState('Technologies Used');
   const [techHeadingPrefix, setTechHeadingPrefix] = useState('The tools and tech stack');
   const [techHeadingHighlight, setTechHeadingHighlight] = useState('we work with.');
@@ -109,14 +117,14 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [techCategories, setTechCategories] = useState([]);
   const [openTechIndex, setOpenTechIndex] = useState(null);
 
-  // --- 5. HOW IT WORKS TIMELINE STATE ---
+  // --- 6. HOW IT WORKS TIMELINE STATE ---
   const [hiwBadge, setHiwBadge] = useState('How It Works');
   const [hiwHeadingPrefix, setHiwHeadingPrefix] = useState('From Brief to');
   const [hiwHeadingHighlight, setHiwHeadingHighlight] = useState('Build.');
   const [howItWorksSteps, setHowItWorksSteps] = useState([]);
   const [openHiwIndex, setOpenHiwIndex] = useState(null);
 
-  // --- 6. FAQ SECTION STATE ---
+  // --- 7. FAQ SECTION STATE ---
   const [faqs, setFaqs] = useState([]);
   const [openEditorFaqIndex, setOpenEditorFaqIndex] = useState(null);
 
@@ -157,10 +165,17 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
         setBcSubheading(pd.businessCase?.subheading || '');
         setBusinessCases(pd.businessCase?.reasons || []);
 
+        setServicesBadge(pd.services?.badge || 'Services • What You Can Hand Off From Day One');
+        setServicesHeadingPrefix(pd.services?.headingPrefix || 'Specialists Who Ship.');
+        setServicesHeadingHighlight(pd.services?.headingHighlight || 'Not Generalists Who Dabble.');
+        setServicesSubheading(pd.services?.subheading || "Here's what your hired developer can start building immediately:");
+        setServices(pd.services?.services || []);
+
         setTechBadge(pd.technologies?.badge || '');
         setTechHeadingPrefix(pd.technologies?.headingPrefix || '');
         setTechHeadingHighlight(pd.technologies?.headingHighlight || '');
         setTechSubheading(pd.technologies?.subheading || '');
+        
         const mappedTech = (pd.technologies?.categories || []).map(cat => ({
           ...cat,
           tagsInput: cat.tags ? cat.tags.join(', ') : ''
@@ -213,50 +228,109 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
     e.preventDefault(); setFeaturedImageFile(null); setFeaturedImagePreview(null); setFeaturedImageUrl('');
   };
 
+  // Explicit, robust mapping updates for state reference synchronizations
   const addCapability = () => {
     const autoTheme = capabilities.length % 2 === 0 ? 'red' : 'yellow';
     setCapabilities([...capabilities, { title: '', category: '', desc: '', icon: 'ShoppingCart', theme: autoTheme, size: 'md:col-span-2', logos: [] }]);
     setOpenCapabilityIndex(capabilities.length);
   };
   const updateCapability = (index, field, value) => {
-    const newCaps = [...capabilities]; newCaps[index] = { ...newCaps[index], [field]: value }; setCapabilities(newCaps);
+    const newCaps = [...capabilities];
+    newCaps[index] = { ...newCaps[index], [field]: value };
+    setCapabilities(newCaps);
   };
   const removeCapability = (index) => {
     const filtered = capabilities.filter((_, i) => i !== index).map((cap, idx) => ({ ...cap, theme: idx % 2 === 0 ? 'red' : 'yellow' }));
     setCapabilities(filtered); if (openCapabilityIndex === index) setOpenCapabilityIndex(null);
   };
   const addLogoToCapability = (capIndex) => {
-    const newCaps = [...capabilities]; newCaps[capIndex].logos.push({ name: '', url: '' }); setCapabilities(newCaps);
+    const newCaps = [...capabilities];
+    newCaps[capIndex] = { ...newCaps[capIndex], logos: [...newCaps[capIndex].logos, { name: '', url: '' }] };
+    setCapabilities(newCaps);
   };
   const updateLogoInCapability = (capIndex, logoIndex, field, value) => {
-    const newCaps = [...capabilities]; newCaps[capIndex].logos[logoIndex][field] = value; setCapabilities(newCaps);
+    const newCaps = [...capabilities];
+    const updatedLogos = [...newCaps[capIndex].logos];
+    updatedLogos[logoIndex] = { ...updatedLogos[logoIndex], [field]: value };
+    newCaps[capIndex] = { ...newCaps[capIndex], logos: updatedLogos };
+    setCapabilities(newCaps);
   };
   const removeLogoFromCapability = (capIndex, logoIndex) => {
-    const newCaps = [...capabilities]; newCaps[capIndex].logos = newCaps[capIndex].logos.filter((_, i) => i !== logoIndex); setCapabilities(newCaps);
+    const newCaps = [...capabilities];
+    newCaps[capIndex] = { ...newCaps[capIndex], logos: newCaps[capIndex].logos.filter((_, i) => i !== logoIndex) };
+    setCapabilities(newCaps);
   };
 
-  const addBusinessCase = () => { setBusinessCases([...businessCases, { stat: '', title: '', desc: '', icon: 'Zap' }]); setOpenBcIndex(businessCases.length); };
-  const updateBusinessCase = (index, field, value) => { const newBc = [...businessCases]; newBc[index] = { ...newBc[index], [field]: value }; setBusinessCases(newBc); };
-  const removeBusinessCase = (index) => { setBusinessCases(businessCases.filter((_, i) => i !== index)); if (openBcIndex === index) setOpenBcIndex(null); };
+  const addBusinessCase = () => { 
+    setBusinessCases([...businessCases, { stat: '', title: '', desc: '', icon: 'Zap' }]); 
+    setOpenBcIndex(businessCases.length); 
+  };
+  const updateBusinessCase = (index, field, value) => { 
+    const newBc = [...businessCases]; 
+    newBc[index] = { ...newBc[index], [field]: value }; 
+    setBusinessCases(newBc); 
+  };
+  const removeBusinessCase = (index) => { 
+    setBusinessCases(businessCases.filter((_, i) => i !== index)); 
+    if (openBcIndex === index) setOpenBcIndex(null); 
+  };
 
-  const addTechCategory = () => { setTechCategories([...techCategories, { category: '', icon: 'Monitor', tagsInput: '' }]); setOpenTechIndex(techCategories.length); };
-  const updateTechCategory = (index, field, value) => { const newTechs = [...techCategories]; newTechs[index] = { ...newTechs[index], [field]: value }; setTechCategories(newTechs); };
-  const removeTechCategory = (index) => { setTechCategories(techCategories.filter((_, i) => i !== index)); if (openTechIndex === index) setOpenTechIndex(null); };
+  const addService = () => {
+    setServices([...services, { title: '', description: '', icon: 'CheckCircle' }]);
+    setOpenServiceIndex(services.length);
+  };
+  const updateService = (index, field, value) => {
+    const newServices = [...services];
+    newServices[index] = { ...newServices[index], [field]: value };
+    setServices(newServices);
+  };
+  const removeService = (index) => {
+    setServices(services.filter((_, i) => i !== index));
+    if (openServiceIndex === index) setOpenServiceIndex(null);
+  };
+
+  const addTechCategory = () => { 
+    setTechCategories([...techCategories, { category: '', icon: 'Monitor', tagsInput: '' }]); 
+    setOpenTechIndex(techCategories.length); 
+  };
+  const updateTechCategory = (index, field, value) => { 
+    const newTechs = [...techCategories]; 
+    newTechs[index] = { ...newTechs[index], [field]: value }; 
+    setTechCategories(newTechs); 
+  };
+  const removeTechCategory = (index) => { 
+    setTechCategories(techCategories.filter((_, i) => i !== index)); 
+    if (openTechIndex === index) setOpenTechIndex(null); 
+  };
 
   const addHiwStep = () => {
     const stepNum = String(howItWorksSteps.length + 1).padStart(2, '0');
     setHowItWorksSteps([...howItWorksSteps, { num: stepNum, icon: 'FileText', title: '', desc: '' }]);
     setOpenHiwIndex(howItWorksSteps.length);
   };
-  const updateHiwStep = (index, field, value) => { const newSteps = [...howItWorksSteps]; newSteps[index] = { ...newSteps[index], [field]: value }; setHowItWorksSteps(newSteps); };
+  const updateHiwStep = (index, field, value) => { 
+    const newSteps = [...howItWorksSteps]; 
+    newSteps[index] = { ...newSteps[index], [field]: value }; 
+    setHowItWorksSteps(newSteps); 
+  };
   const removeHiwStep = (index) => {
     const filtered = howItWorksSteps.filter((_, i) => i !== index).map((step, idx) => ({ ...step, num: String(idx + 1).padStart(2, '0') }));
     setHowItWorksSteps(filtered); if (openHiwIndex === index) setOpenHiwIndex(null);
   };
 
-  const addFAQ = () => { setFaqs([...faqs, { question: '', answer: '' }]); setOpenEditorFaqIndex(faqs.length); };
-  const updateFAQ = (index, field, value) => { const newFaqs = [...faqs]; newFaqs[index] = { ...newFaqs[index], [field]: value }; setFaqs(newFaqs); };
-  const removeFAQ = (index) => { setFaqs(faqs.filter((_, i) => i !== index)); if (openEditorFaqIndex === index) setOpenEditorFaqIndex(null); };
+  const addFAQ = () => { 
+    setFaqs([...faqs, { question: '', answer: '' }]); 
+    setOpenEditorFaqIndex(faqs.length); 
+  };
+  const updateFAQ = (index, field, value) => { 
+    const newFaqs = [...faqs]; 
+    newFaqs[index] = { ...newFaqs[index], [field]: value }; 
+    setFaqs(newFaqs); 
+  };
+  const removeFAQ = (index) => { 
+    setFaqs(faqs.filter((_, i) => i !== index)); 
+    if (openEditorFaqIndex === index) setOpenEditorFaqIndex(null); 
+  };
 
   const handleUpdateRole = async (e) => {
     e.preventDefault();
@@ -267,15 +341,20 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
 
     const finalSlug = slug.trim() || roleName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const processedTechCategories = techCategories.map(cat => ({
-      category: cat.category.trim(), icon: cat.icon, tags: cat.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+      category: cat.category.trim(), 
+      icon: cat.icon, 
+      tags: cat.tagsInput ? cat.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : []
     }));
 
     const payload = {
-      roleName: roleName.trim(), slug: finalSlug, seo: { metaTitle: metaTitle.trim(), metaDescription: metaDescription.trim() },
+      roleName: roleName.trim(), 
+      slug: finalSlug, 
+      seo: { metaTitle: metaTitle.trim(), metaDescription: metaDescription.trim() },
       pageData: {
         hero: { title: heroTitle.trim(), subtitle: heroSubtitle, backgroundImage: featuredImageUrl },
         portfolio: { heading: portfolioHeading.trim(), subheading: portfolioSubheading.trim(), projects: capabilities },
         businessCase: { badge: bcBadge.trim(), headingPrefix: bcHeadingPrefix.trim(), headingHighlight: bcHeadingHighlight.trim(), subheading: bcSubheading.trim(), reasons: businessCases },
+        services: { badge: servicesBadge.trim(), headingPrefix: servicesHeadingPrefix.trim(), headingHighlight: servicesHeadingHighlight.trim(), subheading: servicesSubheading.trim(), services: services },
         technologies: { badge: techBadge.trim(), headingPrefix: techHeadingPrefix.trim(), headingHighlight: techHeadingHighlight.trim(), subheading: techSubheading.trim(), categories: processedTechCategories },
         howItWorks: { badge: hiwBadge.trim(), headingPrefix: hiwHeadingPrefix.trim(), headingHighlight: hiwHeadingHighlight.trim(), steps: howItWorksSteps },
         faq: faqs
@@ -410,7 +489,7 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
                             <Button type="button" variant="outline" size="sm" onClick={() => addLogoToCapability(index)} className="h-8 text-xs"><Plus className="w-3 h-3 mr-1" /> Add Stack Item</Button>
                           </div>
                           <div className="space-y-3">
-                            {cap.logos.map((logo, lIndex) => (
+                            {cap.logos && cap.logos.map((logo, lIndex) => (
                               <div key={lIndex} className="flex gap-3 items-center">
                                 <Input type="text" placeholder="Tech Name (e.g., React)" value={logo.name} onChange={(e) => updateLogoInCapability(index, lIndex, 'name', e.target.value)} className="bg-white h-9 text-xs" />
                                 <Input type="text" placeholder="Vector CDN Image URL" value={logo.url} onChange={(e) => updateLogoInCapability(index, lIndex, 'url', e.target.value)} className="bg-white h-9 text-xs" />
@@ -481,11 +560,63 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 4. TECHNOLOGIES SECTION */}
+          {/* 4. SERVICES SECTION */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">4. Services & Handoff Tasks</h3>
+                <p className="text-xs text-slate-500 mt-1">Configure immediately handoff-able responsibilities.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={addService} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Service Item</Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
+              <div>
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Badge Callout</label>
+                <Input type="text" value={servicesBadge} onChange={(e) => setServicesBadge(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Prefix String</label>
+                <Input type="text" value={servicesHeadingPrefix} onChange={(e) => setServicesHeadingPrefix(e.target.value)} className="bg-white border-slate-200 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlight Text</label>
+                <Input type="text" value={servicesHeadingHighlight} onChange={(e) => setServicesHeadingHighlight(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Subheading Paragraph Context</label>
+                <Textarea value={servicesSubheading} onChange={(e) => setServicesSubheading(e.target.value)} className="bg-white border-slate-200 resize-none h-[42px] text-sm" />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {services.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No service items added.</div>}
+              {services.map((service, index) => (
+                <div key={index} className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="p-4 cursor-pointer flex justify-between items-center hover:bg-slate-50" onClick={() => setOpenServiceIndex(openServiceIndex === index ? null : index)}>
+                    <span className="font-semibold text-sm text-slate-800">{service.title || `Service Item #${index + 1}`}</span>
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeService(index); }} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                  {openServiceIndex === index && (
+                    <div className="p-6 pt-0 border-t border-slate-100 space-y-6 mt-4 bg-slate-50/50">
+                      <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Title</label><Input type="text" value={service.title} onChange={(e) => updateService(index, 'title', e.target.value)} className="bg-white border-slate-200 text-sm" /></div>
+                      <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Description</label><Textarea value={service.description} onChange={(e) => updateService(index, 'description', e.target.value)} className="bg-white border-slate-200 resize-none h-20 text-sm" /></div>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-2">Looked-up Vector Core Icon</label>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {AVAILABLE_ICONS.map((iObj) => (
+                            <button key={iObj.name} type="button" onClick={() => updateService(index, 'icon', iObj.name)} className={`p-2.5 rounded-lg border flex items-center justify-center transition-all ${service.icon === iObj.name ? 'bg-[#1A4484] text-white border-[#1A4484]' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`} title={iObj.name}>{iObj.icon}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 5. TECHNOLOGIES SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">4. Technologies Ecosystem Grid</h3>
+                <h3 className="text-lg font-bold text-slate-900">5. Technologies Ecosystem Grid</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure language and workspace proficiencies.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addTechCategory} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Tech Block</Button>
@@ -537,11 +668,11 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 5. HOW IT WORKS SECTION */}
+          {/* 6. HOW IT WORKS SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">5. Onboarding Workflow Timeline</h3>
+                <h3 className="text-lg font-bold text-slate-900">6. Onboarding Workflow Timeline</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure progressive onboarding execution steps.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addHiwStep} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Delivery Step</Button>
@@ -589,9 +720,9 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 6. FAQ SECTION */}
+          {/* 7. FAQ SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">6. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">7. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
             <div className="space-y-4">
                {faqs.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No dynamic FAQ query objects added.</div>}
                {faqs.map((faq, index) => (
