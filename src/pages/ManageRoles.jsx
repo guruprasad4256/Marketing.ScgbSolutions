@@ -228,7 +228,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
     e.preventDefault(); setFeaturedImageFile(null); setFeaturedImagePreview(null); setFeaturedImageUrl('');
   };
 
-  // Explicit, robust mapping updates for state reference synchronizations
   const addCapability = () => {
     const autoTheme = capabilities.length % 2 === 0 ? 'red' : 'yellow';
     setCapabilities([...capabilities, { title: '', category: '', desc: '', icon: 'ShoppingCart', theme: autoTheme, size: 'md:col-span-2', logos: [] }]);
