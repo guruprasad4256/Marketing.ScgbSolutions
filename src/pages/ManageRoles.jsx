@@ -101,15 +101,7 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [businessCases, setBusinessCases] = useState([]);
   const [openBcIndex, setOpenBcIndex] = useState(null);
 
-  // --- 4. SERVICES SECTION STATE ---
-  const [servicesBadge, setServicesBadge] = useState('Services • What You Can Hand Off From Day One');
-  const [servicesHeadingPrefix, setServicesHeadingPrefix] = useState('Specialists Who Ship.');
-  const [servicesHeadingHighlight, setServicesHeadingHighlight] = useState('Not Generalists Who Dabble.');
-  const [servicesSubheading, setServicesSubheading] = useState("Here's what your hired developer can start building immediately:");
-  const [services, setServices] = useState([]);
-  const [openServiceIndex, setOpenServiceIndex] = useState(null);
-
-  // --- 5. TECHNOLOGIES GRID STATE ---
+  // --- 4. TECHNOLOGIES GRID STATE ---
   const [techBadge, setTechBadge] = useState('Technologies Used');
   const [techHeadingPrefix, setTechHeadingPrefix] = useState('The tools and tech stack');
   const [techHeadingHighlight, setTechHeadingHighlight] = useState('we work with.');
@@ -117,14 +109,14 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [techCategories, setTechCategories] = useState([]);
   const [openTechIndex, setOpenTechIndex] = useState(null);
 
-  // --- 6. HOW IT WORKS TIMELINE STATE ---
+  // --- 5. HOW IT WORKS TIMELINE STATE ---
   const [hiwBadge, setHiwBadge] = useState('How It Works');
   const [hiwHeadingPrefix, setHiwHeadingPrefix] = useState('From Brief to');
   const [hiwHeadingHighlight, setHiwHeadingHighlight] = useState('Build.');
   const [howItWorksSteps, setHowItWorksSteps] = useState([]);
   const [openHiwIndex, setOpenHiwIndex] = useState(null);
 
-  // --- 7. FAQ SECTION STATE ---
+  // --- 6. FAQ SECTION STATE ---
   const [faqs, setFaqs] = useState([]);
   const [openEditorFaqIndex, setOpenEditorFaqIndex] = useState(null);
 
@@ -164,12 +156,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
         setBcHeadingHighlight(pd.businessCase?.headingHighlight || '');
         setBcSubheading(pd.businessCase?.subheading || '');
         setBusinessCases(pd.businessCase?.reasons || []);
-
-        setServicesBadge(pd.services?.badge || 'Services • What You Can Hand Off From Day One');
-        setServicesHeadingPrefix(pd.services?.headingPrefix || 'Specialists Who Ship.');
-        setServicesHeadingHighlight(pd.services?.headingHighlight || 'Not Generalists Who Dabble.');
-        setServicesSubheading(pd.services?.subheading || "Here's what your hired developer can start building immediately:");
-        setServices(pd.services?.services || []);
 
         setTechBadge(pd.technologies?.badge || '');
         setTechHeadingPrefix(pd.technologies?.headingPrefix || '');
@@ -274,20 +260,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
     if (openBcIndex === index) setOpenBcIndex(null); 
   };
 
-  const addService = () => {
-    setServices([...services, { title: '', description: '', icon: 'CheckCircle' }]);
-    setOpenServiceIndex(services.length);
-  };
-  const updateService = (index, field, value) => {
-    const newServices = [...services];
-    newServices[index] = { ...newServices[index], [field]: value };
-    setServices(newServices);
-  };
-  const removeService = (index) => {
-    setServices(services.filter((_, i) => i !== index));
-    if (openServiceIndex === index) setOpenServiceIndex(null);
-  };
-
   const addTechCategory = () => { 
     setTechCategories([...techCategories, { category: '', icon: 'Monitor', tagsInput: '' }]); 
     setOpenTechIndex(techCategories.length); 
@@ -353,7 +325,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
         hero: { title: heroTitle.trim(), subtitle: heroSubtitle, backgroundImage: featuredImageUrl },
         portfolio: { heading: portfolioHeading.trim(), subheading: portfolioSubheading.trim(), projects: capabilities },
         businessCase: { badge: bcBadge.trim(), headingPrefix: bcHeadingPrefix.trim(), headingHighlight: bcHeadingHighlight.trim(), subheading: bcSubheading.trim(), reasons: businessCases },
-        services: { badge: servicesBadge.trim(), headingPrefix: servicesHeadingPrefix.trim(), headingHighlight: servicesHeadingHighlight.trim(), subheading: servicesSubheading.trim(), services: services },
         technologies: { badge: techBadge.trim(), headingPrefix: techHeadingPrefix.trim(), headingHighlight: techHeadingHighlight.trim(), subheading: techSubheading.trim(), categories: processedTechCategories },
         howItWorks: { badge: hiwBadge.trim(), headingPrefix: hiwHeadingPrefix.trim(), headingHighlight: hiwHeadingHighlight.trim(), steps: howItWorksSteps },
         faq: faqs
@@ -559,11 +530,11 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 5. TECHNOLOGIES SECTION */}
+          {/* 4. TECHNOLOGIES SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">5. Technologies Ecosystem Grid</h3>
+                <h3 className="text-lg font-bold text-slate-900">4. Technologies Ecosystem Grid</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure language and workspace proficiencies.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addTechCategory} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Tech Block</Button>
@@ -615,11 +586,11 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 6. HOW IT WORKS SECTION */}
+          {/* 5. HOW IT WORKS SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">6. Onboarding Workflow Timeline</h3>
+                <h3 className="text-lg font-bold text-slate-900">5. Onboarding Workflow Timeline</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure progressive onboarding execution steps.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addHiwStep} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Delivery Step</Button>
@@ -667,9 +638,9 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 7. FAQ SECTION */}
+          {/* 6. FAQ SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">7. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">6. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
             <div className="space-y-4">
                {faqs.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No dynamic FAQ query objects added.</div>}
                {faqs.map((faq, index) => (
