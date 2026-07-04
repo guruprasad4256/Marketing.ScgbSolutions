@@ -559,58 +559,6 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
             </div>
           </motion.div>
 
-          {/* 4. SERVICES SECTION */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">4. Services & Handoff Tasks</h3>
-                <p className="text-xs text-slate-500 mt-1">Configure immediately handoff-able responsibilities.</p>
-              </div>
-              <Button variant="outline" size="sm" onClick={addService} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Service Item</Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
-              <div>
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Badge Callout</label>
-                <Input type="text" value={servicesBadge} onChange={(e) => setServicesBadge(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Prefix String</label>
-                <Input type="text" value={servicesHeadingPrefix} onChange={(e) => setServicesHeadingPrefix(e.target.value)} className="bg-white border-slate-200 text-sm" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlight Text</label>
-                <Input type="text" value={servicesHeadingHighlight} onChange={(e) => setServicesHeadingHighlight(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Subheading Paragraph Context</label>
-                <Textarea value={servicesSubheading} onChange={(e) => setServicesSubheading(e.target.value)} className="bg-white border-slate-200 resize-none h-[42px] text-sm" />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {services.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No service items added.</div>}
-              {services.map((service, index) => (
-                <div key={index} className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-                  <div className="p-4 cursor-pointer flex justify-between items-center hover:bg-slate-50" onClick={() => setOpenServiceIndex(openServiceIndex === index ? null : index)}>
-                    <span className="font-semibold text-sm text-slate-800">{service.title || `Service Item #${index + 1}`}</span>
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeService(index); }} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"><Trash2 className="w-4 h-4" /></Button>
-                  </div>
-                  {openServiceIndex === index && (
-                    <div className="p-6 pt-0 border-t border-slate-100 space-y-6 mt-4 bg-slate-50/50">
-                      <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Title</label><Input type="text" value={service.title} onChange={(e) => updateService(index, 'title', e.target.value)} className="bg-white border-slate-200 text-sm" /></div>
-                      <div><label className="text-xs font-semibold text-slate-600 block mb-2">Service Description</label><Textarea value={service.description} onChange={(e) => updateService(index, 'description', e.target.value)} className="bg-white border-slate-200 resize-none h-20 text-sm" /></div>
-                      <div>
-                        <label className="text-xs font-semibold text-slate-600 block mb-2">Looked-up Vector Core Icon</label>
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {AVAILABLE_ICONS.map((iObj) => (
-                            <button key={iObj.name} type="button" onClick={() => updateService(index, 'icon', iObj.name)} className={`p-2.5 rounded-lg border flex items-center justify-center transition-all ${service.icon === iObj.name ? 'bg-[#1A4484] text-white border-[#1A4484]' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`} title={iObj.name}>{iObj.icon}</button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
           {/* 5. TECHNOLOGIES SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
