@@ -31,7 +31,7 @@ const SERVICE_TAGS = [
 ];
 
 // --- FIXED SERVER URL LOGIC ---
-const RAW_URL = import.meta.env.VITE_API_URL || 'https://api.manhoursonhire.com';
+const RAW_URL = import.meta.env.VITE_API_URL || 'https://api.scgbsolutions.com';
 const SERVER_URL = RAW_URL.replace(/\/+$/, '');
 
 const BlogEditor = () => {

@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 const SITES = ['Kyamme', 'Manhours On Hire', 'Tasked', 'Founders Counsel', 'Curated for founders'];
 
 // Fallback logic matching your server configuration
-const RAW_URL = import.meta.env.VITE_API_URL || 'https://api.manhoursonhire.com';
+const RAW_URL = import.meta.env.VITE_API_URL || 'https://api.scgbsolutions.com';
 const SERVER_URL = RAW_URL.replace(/\/+$/, '');
 const endpoint = SERVER_URL.endsWith('/api') ? '/testimonials' : '/api/testimonials';
 const uploadEndpoint = SERVER_URL.endsWith('/api') ? '/upload' : '/api/upload';
