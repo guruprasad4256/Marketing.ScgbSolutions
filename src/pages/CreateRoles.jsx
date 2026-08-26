@@ -23,7 +23,7 @@ const isLocalhost = window.location.hostname === 'localhost' || window.location.
 
 const RAW_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) 
   ? import.meta.env.VITE_API_URL 
-  : (isLocalhost ? 'http://localhost:5000' : 'https://api.manhoursonhire.com'); 
+  : (isLocalhost ? 'http://localhost:5000' : 'https://api.scgbsolutions.com'); 
 
 const SERVER_URL = RAW_URL.replace(/\/+$/, '');
 
