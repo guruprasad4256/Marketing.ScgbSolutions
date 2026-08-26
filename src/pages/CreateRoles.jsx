@@ -76,7 +76,7 @@ const CreateRole = () => {
     "Accounts Executive", "UI Designer", "SEO Expert", "Performance Marketer",
     "Executive Assistant", "Creative Strategist", "Copywriter", "Blog Writer",
     "Marketing Strategist", "Legal Strategiest", "Recruitment VA",
-    "Content Strategist", "Brand Strategiest"
+    "Content Strategist", "Brand Strategiest", "HR Operations Executive"
   ]);
 
   // --- GLOBAL INFO & SEO STATE ---
