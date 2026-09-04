@@ -1021,7 +1021,6 @@ const ManageRoles = () => {
                       </span>
                     </div>
                     
-                    {/* Action Buttons Grid */}
                     <div className="mt-auto grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
                       <Button 
                         variant="outline" 
@@ -1042,7 +1041,6 @@ const ManageRoles = () => {
                       </Button>
                     </div>
 
-                    {/* Secondary Actions Row */}
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <Link to={`https://manhoursonhire.com/role/${role.slug}`} target="_blank" rel="noopener noreferrer" className="w-full">
                         <Button variant="ghost" size="sm" className="w-full text-xs h-8 text-slate-500 hover:text-slate-800 bg-slate-50 hover:bg-slate-100">
