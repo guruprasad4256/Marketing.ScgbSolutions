@@ -71,13 +71,7 @@ const CreateRole = () => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // --- DYNAMIC ROLES STATE ---
-  const [availableRoles, setAvailableRoles] = useState([
-    "Graphic Designer", "Video Editor", "Legal Professional", "Web Developer",
-    "Accounts Executive", "UI Designer", "SEO Expert", "Performance Marketer",
-    "Executive Assistant", "Creative Strategist", "Copywriter", "Blog Writer",
-    "Marketing Strategist", "Legal Strategiest", "Recruitment VA",
-    "Content Strategist", "Brand Strategiest", "HR Operations Executive"
-  ]);
+  const [availableRoles, setAvailableRoles] = useState([]);
 
   // --- GLOBAL INFO & SEO STATE ---
   const [roleName, setRoleName] = useState('');
@@ -142,18 +136,13 @@ const CreateRole = () => {
   useEffect(() => {
     const fetchAvailableRoles = async () => {
       try {
-        // Replace with your actual endpoint for fetching the dropdown list
-        const endpoint = SERVER_URL.endsWith('/api') ? '/available-roles' : '/api/available-roles';
+        const endpoint = SERVER_URL.endsWith('/api') ? '/roles-rates/names' : '/api/roles-rates/names';
         const res = await axios.get(`${SERVER_URL}${endpoint}`);
-        
-        // Ensure data exists and is an array before setting
-        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-          // Extracts the name if returning objects { id: 1, name: 'SEO Expert' }, or keeps it if returning raw strings
-          const formattedRoles = res.data.map(r => typeof r === 'string' ? r : r.name || r.roleName);
-          setAvailableRoles(formattedRoles);
+        if (res.data && Array.isArray(res.data)) {
+          setAvailableRoles(res.data);
         }
       } catch (err) {
-        console.warn("Dynamic roles could not be fetched from backend. Falling back to default list.");
+        console.error("Failed to fetch roles from database:", err);
       }
     };
 
@@ -569,11 +558,71 @@ const CreateRole = () => {
             </div>
           </motion.div>
 
-          {/* 4. TECHNOLOGIES SECTION */}
+          {/* 4. SERVICES SECTION */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">4. Services (Day One Handoff)</h3>
+                <p className="text-xs text-slate-500 mt-1">Configure the direct tasks and capabilities this role can execute.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={addService} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900">
+                <Plus className="w-4 h-4" /> Add Service Node
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg">
+              <div>
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Section Badge Callout</label>
+                <Input type="text" value={servicesBadge} onChange={(e) => setServicesBadge(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Base Prefix</label>
+                <Input type="text" value={servicesHeadingPrefix} onChange={(e) => setServicesHeadingPrefix(e.target.value)} className="bg-white border-slate-200 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Heading Highlight String</label>
+                <Input type="text" value={servicesHeadingHighlight} onChange={(e) => setServicesHeadingHighlight(e.target.value)} className="bg-white border-slate-200 text-sm mb-4" />
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Subheading Description</label>
+                <Textarea value={servicesSubheading} onChange={(e) => setServicesSubheading(e.target.value)} className="bg-white border-slate-200 resize-none h-[42px] text-sm" />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {services.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No service execution blocks added.</div>}
+              {services.map((srv, index) => (
+                <div key={index} className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="p-4 cursor-pointer flex justify-between items-center hover:bg-slate-50" onClick={() => setOpenServiceIndex(openServiceIndex === index ? null : index)}>
+                    <span className="font-semibold text-sm text-slate-800">{srv.title || `Service Task Node #${index + 1}`}</span>
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removeService(index); }} className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                  {openServiceIndex === index && (
+                    <div className="p-6 pt-0 border-t border-slate-100 space-y-6 mt-4 bg-slate-50/50">
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-2">Service Core Title</label>
+                        <Input type="text" value={srv.title} onChange={(e) => updateService(index, 'title', e.target.value)} className="bg-white border-slate-200 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-2">Service Execution Description</label>
+                        <Textarea value={srv.description} onChange={(e) => updateService(index, 'description', e.target.value)} className="bg-white border-slate-200 resize-none h-20 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-slate-600 block mb-2">Node Icon Designation</label>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {AVAILABLE_ICONS.map((iObj) => (
+                            <button key={iObj.name} type="button" onClick={() => updateService(index, 'icon', iObj.name)} className={`p-2.5 rounded-lg border flex items-center justify-center transition-all ${srv.icon === iObj.name ? 'bg-[#1A4484] text-white border-[#1A4484]' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`} title={iObj.name}>{iObj.icon}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* 5. TECHNOLOGIES SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">4. Technologies Ecosystem Grid</h3>
+                <h3 className="text-lg font-bold text-slate-900">5. Technologies Ecosystem Grid</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure language and workspace proficiencies.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addTechCategory} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Tech Block</Button>
@@ -625,11 +674,11 @@ const CreateRole = () => {
             </div>
           </motion.div>
 
-          {/* 5. HOW IT WORKS SECTION */}
+          {/* 6. HOW IT WORKS SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
             <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">5. Onboarding Workflow Timeline</h3>
+                <h3 className="text-lg font-bold text-slate-900">6. Onboarding Workflow Timeline</h3>
                 <p className="text-xs text-slate-500 mt-1">Configure progressive onboarding execution steps.</p>
               </div>
               <Button variant="outline" size="sm" onClick={addHiwStep} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add Delivery Step</Button>
@@ -677,9 +726,9 @@ const CreateRole = () => {
             </div>
           </motion.div>
 
-          {/* 6. FAQ SECTION */}
+          {/* 7. FAQ SECTION */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white border border-slate-200 shadow-sm rounded-lg p-8">
-            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">6. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4"><h3 className="text-lg font-bold text-slate-900">7. Contextual Accordion FAQs</h3><Button variant="outline" size="sm" onClick={addFAQ} className="rounded-md flex gap-2 text-sm text-slate-700 hover:text-slate-900"><Plus className="w-4 h-4" /> Add FAQ Accordion</Button></div>
             <div className="space-y-4">
                {faqs.length === 0 && <div className="text-center py-8 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-md">No dynamic FAQ query objects added.</div>}
                {faqs.map((faq, index) => (

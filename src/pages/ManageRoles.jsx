@@ -73,6 +73,9 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
+  // --- DYNAMIC ROLES STATE ---
+  const [availableRoles, setAvailableRoles] = useState([]);
+
   // --- GLOBAL INFO & SEO STATE ---
   const [roleName, setRoleName] = useState('');
   const [slug, setSlug] = useState('');
@@ -119,6 +122,22 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
   // --- 6. FAQ SECTION STATE ---
   const [faqs, setFaqs] = useState([]);
   const [openEditorFaqIndex, setOpenEditorFaqIndex] = useState(null);
+
+  // FETCH AVAILABLE ROLES (DYNAMIC)
+  useEffect(() => {
+    const fetchAvailableRoles = async () => {
+      try {
+        const endpoint = SERVER_URL.endsWith('/api') ? '/roles-rates/names' : '/api/roles-rates/names';
+        const res = await axios.get(`${SERVER_URL}${endpoint}`);
+        if (res.data && Array.isArray(res.data)) {
+          setAvailableRoles(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch roles from database:", err);
+      }
+    };
+    fetchAvailableRoles();
+  }, []);
 
   // FETCH EXISTING DATA ON MOUNT
   useEffect(() => {
@@ -678,23 +697,9 @@ const FullEditModal = ({ roleId, onClose, onSuccess }) => {
                         className="flex w-full bg-white border border-slate-200 focus-visible:ring-2 focus-visible:ring-[#1A4484] focus-visible:outline-none text-sm h-10 rounded-md px-3"
                       >
                         <option value="" disabled>Select a role...</option>
-                        <option value="Graphic Designer">Graphic Designer</option>
-                        <option value="Video Editor">Video Editor</option>
-                        <option value="Legal Professional">Legal Professional</option>
-                        <option value="Web Developer">Web Developer</option>
-                        <option value="Accounts Executive">Accounts Executive</option>
-                        <option value="UI Designer">UI Designer</option>
-                        <option value="SEO Expert">SEO Expert</option>
-                        <option value="Performance Marketer">Performance Marketer</option>
-                        <option value="Executive Assistant">Executive Assistant</option>
-                        <option value="Creative Strategist">Creative Strategist</option>
-                        <option value="Copywriter">Copywriter</option>
-                        <option value="Blog Writer">Blog Writer</option>
-                        <option value="Marketing Strategist">Marketing Strategist</option>
-                        <option value="Legal Strategiest">Legal Strategiest</option>
-                        <option value="Recruitment VA">Recruitment VA</option>
-                        <option value="Content Strategist">Content Strategist</option>
-                        <option value="Brand Strategiest">Brand Strategiest</option>
+                        {availableRoles.map((role, idx) => (
+                          <option key={idx} value={role}>{role}</option>
+                        ))}
                       </select>
                     </div>
                     <div className="pt-5 border-t border-slate-100"><label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">Custom Router Routing Slug (URL Parameter)</label><Input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g., hire-nodejs-developer" className="bg-white border-slate-200 text-sm rounded-md" /></div>
@@ -721,6 +726,9 @@ const ManageRoles = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // --- DYNAMIC ROLES STATE ---
+  const [availableRoles, setAvailableRoles] = useState([]);
+
   // --- Quick Edit Popup States ---
   const [popupRole, setPopupRole] = useState(null);
   const [quickRoleName, setQuickRoleName] = useState('');
@@ -731,6 +739,22 @@ const ManageRoles = () => {
 
   // --- Full Edit Modal State ---
   const [fullEditRoleId, setFullEditRoleId] = useState(null);
+
+  // FETCH AVAILABLE ROLES (DYNAMIC)
+  useEffect(() => {
+    const fetchAvailableRoles = async () => {
+      try {
+        const endpoint = SERVER_URL.endsWith('/api') ? '/roles-rates/names' : '/api/roles-rates/names';
+        const res = await axios.get(`${SERVER_URL}${endpoint}`);
+        if (res.data && Array.isArray(res.data)) {
+          setAvailableRoles(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch roles from database:", err);
+      }
+    };
+    fetchAvailableRoles();
+  }, []);
 
   useEffect(() => {
     fetchRoles();
@@ -861,23 +885,9 @@ const ManageRoles = () => {
                       className="flex w-full bg-slate-50 border border-slate-200 focus-visible:ring-2 focus-visible:ring-[#1A4484] focus-visible:outline-none text-sm h-11 rounded-md px-3"
                     >
                       <option value="" disabled>Select a role...</option>
-                      <option value="Graphic Designer">Graphic Designer</option>
-                      <option value="Video Editor">Video Editor</option>
-                      <option value="Legal Professional">Legal Professional</option>
-                      <option value="Web Developer">Web Developer</option>
-                      <option value="Accounts Executive">Accounts Executive</option>
-                      <option value="UI Designer">UI Designer</option>
-                      <option value="SEO Expert">SEO Expert</option>
-                      <option value="Performance Marketer">Performance Marketer</option>
-                      <option value="Executive Assistant">Executive Assistant</option>
-                      <option value="Creative Strategist">Creative Strategist</option>
-                      <option value="Copywriter">Copywriter</option>
-                      <option value="Blog Writer">Blog Writer</option>
-                      <option value="Marketing Strategist">Marketing Strategist</option>
-                      <option value="Legal Strategiest">Legal Strategiest</option>
-                      <option value="Recruitment VA">Recruitment VA</option>
-                      <option value="Content Strategist">Content Strategist</option>
-                      <option value="Brand Strategiest">Brand Strategiest</option>
+                      {availableRoles.map((role, idx) => (
+                        <option key={idx} value={role}>{role}</option>
+                      ))}
                     </select>
                   </div>
                   <div>
